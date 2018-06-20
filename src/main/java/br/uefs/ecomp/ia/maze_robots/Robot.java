@@ -18,14 +18,15 @@ public class Robot extends Representation<Integer[][]> {
 	 */
 	public static final int COUNT_INPUTS = 0b11111111;
 
-	/* OUTPUTS = [00-11]
-	 * 00 - Subir
-	 * 01 - Direita
-	 * 10 - Descer
-	 * 11 - Esquerda
+	/* OUTPUTS = [000-100]
+	 * 000 - Nada
+	 * 001 - Subir
+	 * 010 - Direita
+	 * 011 - Descer
+	 * 100 - Esquerda
 	 */
-	public static final int COUNT_OUTPUTS = 0b11;
-	private static final int OUTPUT_BITS = 2;
+	public static final int COUNT_OUTPUTS = 0b100;
+	private static final int OUTPUT_BITS = 3;
 
 	@Override
 	public String toString() {

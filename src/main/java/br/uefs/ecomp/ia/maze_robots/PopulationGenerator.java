@@ -51,7 +51,7 @@ public class PopulationGenerator {
 
 			for (int x = 0; x < inputSize; x++) {
 				for (int y = 0; y < stateSize; y++) {
-					output = random.nextInt(outputSize + 1);
+					output = random.nextInt(outputSize);
 					state = random.nextInt(stateSize);
 					stateMachine[x][y] = (output << stateSize) + state; // transforma 11² em 110², caso COUNT_INITIAL_STATE seja 1;
 				}
