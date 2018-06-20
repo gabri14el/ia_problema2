@@ -26,8 +26,8 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		generation = 1;
 		while (!checkStopCondition()) {
 			selectParents();
-			recombination();
-			applyMutation();
+			recombine();
+			mutate();
 			calculateFitness();
 			selectSurvivors();
 			generation++;
@@ -45,9 +45,9 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
 	protected abstract void selectParents();
 
-	protected abstract void recombination();
+	protected abstract void recombine();
 
-	protected abstract void applyMutation();
+	protected abstract void mutate();
 
 	protected abstract void selectSurvivors();
 }

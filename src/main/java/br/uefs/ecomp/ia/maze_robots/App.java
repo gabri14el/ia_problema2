@@ -1,15 +1,6 @@
 package br.uefs.ecomp.ia.maze_robots;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Random;
 import br.uefs.ecomp.ia.maze_robots.core.EvolutionaryAlgorithm;
 
 public class App extends EvolutionaryAlgorithm<Robot> {
@@ -17,6 +8,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	// Codições de parada
 	private static final int SC_MAX_GENERATION = 1; // Número máximo de gerações para parar o algoritmo
 	private static final boolean SC_STOP_IN_END = true; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
+	private static final int SC_MAX_STEPS = 1000; // Máximo de iterações da máquina de estados
 	private boolean stop_end;
 
 	// Limitações
@@ -28,13 +20,13 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	private static final int POPULATION_SIZE = 100; // Tamanho da população
 
 	// Mutação
-	private static final int MUTATION_CHANGE_OUTPUT = 20; // porcentagem
 	private static final int MUTATION_CHANGE_STATE = 20; // porcentagem
+	private static final int MUTATION_CHANGE_OUTPUT = 20; // porcentagem
 	private static final int MUTATION_ADD_STATE = 5; // porcentagem
 	private static final int MUTATION_DEL_STATE = 10; // porcentagem
 
 	// Outros Parâmetros
-	private static final long START = System.currentTimeMillis();
+	private static final long START_TIME = System.currentTimeMillis();
 	private static final long[] RANDOM_SEEDS = new long[] { // Conjunto de sementes para gerar números aleatórios
 			135827968109L, 208248857186L, 432099974000L, 863278201449L, 461431272318L, 666015161980L, 586981007620L, 877453781828L, 574598151547L, 218042335334L, 435229484920L, 236406828574L,
 			363310412856L, 337560821399L, 918214207238L, 654497046710L, 923238918586L, 388953847145L, 823029413652L, 861453743932L
@@ -50,42 +42,35 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	@Override
 	protected void createStartPopulation() {
-		population = new LinkedList<>();
-
-		Integer[][] stateMachine;
-		Robot robot;
-		int output;
-		int state;
-		Random random = new Random(RANDOM_SEED);
-
-		for (int count = 0; count < POPULATION_SIZE; count++) {
-			stateMachine = new Integer[Robot.COUNT_INPUTS][STATE_INITIAL];
-
-			for (int x = 0; x < Robot.COUNT_INPUTS; x++) {
-				for (int y = 0; y < STATE_INITIAL; y++) {
-					output = random.nextInt(Robot.COUNT_OUTPUTS + 1);
-					state = random.nextInt(STATE_INITIAL);
-					stateMachine[x][y] = (output << STATE_INITIAL) + state; // transforma 11² em 110², caso COUNT_INITIAL_STATE seja 1;
-				}
-			}
-
-			robot = new Robot();
-			robot.setValue(stateMachine);
-			population.add(robot);
-		}
+		PopulationGenerator generator = new PopulationGenerator()
+				.setSeed(RANDOM_SEED)
+				.setSize(POPULATION_SIZE)
+				.setInputSize(Robot.COUNT_INPUTS)
+				.setStateSize(STATE_INITIAL)
+				.setOutputSize(Robot.COUNT_OUTPUTS);
+		population = generator.generate();
 	}
 
 	@Override
 	protected void calculateFitness() {
 		Double fitness;
-
+		boolean end;
+		FitnessCalculator calculator = new FitnessCalculator();
 		for (Robot r : population) {
 			if (r.getFitness() != null)
 				continue;
 
 			fitness = 0.0;
-			// TODO - Calcular fitness
-			// TODO - Se chegar ao fim, stop_end = true
+			end = true;
+			for (Maze m : Maze.mazes) {
+				calculator.setMaxSteps(SC_MAX_STEPS)
+						.setMaze(m)
+						.setRobot(r)
+						.run();
+				fitness += calculator.getFitness();
+				if (!end)
+					end = calculator.itsOver();
+			}
 
 			r.setFitness(fitness);
 		}
@@ -95,41 +80,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	@Override
 	protected void logPopulation() {
-		File dir = new File("output" + File.separator + "run_" + START);
-		dir.mkdirs();
-		File f;
-
-		f = new File(dir, String.format("definitions.txt"));
-		if (!f.exists()) {
-			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-				for (Field field : App.class.getDeclaredFields()) {
-					if (Modifier.isStatic(field.getModifiers()))
-						out.println(field.getName() + ": " + field.get(null));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
-			}
-		}
-
-		System.out.println(String.format("---------------------------------------------- GENERATION %05d ----------------------------------------------", generation));
-		f = new File(dir, String.format("gen_%05d_popu.txt", generation));
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-			population.forEach((r) -> out.println(r));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		f = new File(dir, String.format("gen_%05d_best.txt", generation));
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-			System.out.println(population.get(0));
-			out.println(population.get(0));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-		System.out.println("\n\n");
+		PopulationLogger logger = new PopulationLogger()
+				.setStartTime(START_TIME)
+				.setGeneration(generation)
+				.setPopulation(population);
+		logger.log();
 	}
 
 	@Override
@@ -139,29 +94,39 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	@Override
 	protected void selectParents() {
-		parents = new LinkedList<>(population);
-		parents.sort(comparator);
+		ParentSelector selector = new ParentSelector()
+				.setPopulation(population);
+		parents = selector.select();
 	}
 
 	@Override
-	protected void recombination() {
-		children = new LinkedList<>();
-		parents.forEach((p) -> children.add(p.clone()));
+	protected void recombine() {
+		Recombinator recombinator = new Recombinator()
+				.setParents(parents);
+		children = recombinator.recombine();
 	}
 
 	@Override
-	protected void applyMutation() {
-		Random random = new Random(RANDOM_SEED);
-		boolean addColumn = MUTATION_ADD_STATE >= random.nextInt(100);
-		boolean delColumn = MUTATION_DEL_STATE >= random.nextInt(100);
+	protected void mutate() {
+		Mutator mutator = new Mutator()
+				.setSeed(RANDOM_SEED)
+				.setAddState(MUTATION_ADD_STATE)
+				.setDelState(MUTATION_DEL_STATE)
+				.setChangeState(MUTATION_CHANGE_STATE)
+				.setChangeOutput(MUTATION_CHANGE_OUTPUT);
 
 		for (Robot r : children) {
-
+			mutator.setRobot(r)
+					.mutate();
 		}
 	}
 
 	@Override
-	protected void selectSurvivors() {}
+	protected void selectSurvivors() {
+		SurvivorSelector selector = new SurvivorSelector()
+				.setPopulation(population);
+		population = selector.select();
+	}
 
 	public static void main(String[] args) {
 		new App().run();
