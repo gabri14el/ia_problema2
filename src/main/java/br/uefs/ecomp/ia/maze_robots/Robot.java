@@ -4,6 +4,18 @@ import java.util.Arrays;
 import br.uefs.ecomp.ia.maze_robots.core.Representation;
 
 public class Robot extends Representation<Integer[][]> {
+	/*
+	 *INPUT\STATE
+	 *				..000		..001		..010		.....		..111
+	 * 00000000		sseee...	sseee...	sseee...	.....		sseee...
+	 * 00000001		sseee...	sseee...	sseee...	.....		sseee...
+	 * 00000010		sseee...	sseee...	sseee...	.....		sseee...
+	 * ........		sseee...	sseee...	sseee...	.....		sseee...
+	 * 11111111		sseee...	sseee...	sseee...	.....		sseee...
+	 * 
+	 * s - Saída
+	 * e - Estado
+	 */
 
 	/* INPUTS = [00000000 - 11111111]
 	 * 1º bit - Parede em cima
