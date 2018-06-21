@@ -1,6 +1,9 @@
 package br.uefs.ecomp.ia.maze_robots;
 
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import br.uefs.ecomp.ia.maze_robots.core.EvolutionaryAlgorithm;
 
 public class App extends EvolutionaryAlgorithm<Robot> {
@@ -12,8 +15,8 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	private boolean stop_end;
 
 	// Limitações
-	public static final int STATE_MAX = 999;
 	public static final int STATE_MIN = 1;
+	public static final int STATE_MAX = 999;
 	public static final int STATE_INITIAL = 2;
 
 	// População
@@ -32,10 +35,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 			363310412856L, 337560821399L, 918214207238L, 654497046710L, 923238918586L, 388953847145L, 823029413652L, 861453743932L
 	};
 	private static final long RANDOM_SEED = RANDOM_SEEDS[0]; // Semente para gerar números aleatórios usada atualmente
+	private Random random = new Random(RANDOM_SEED);
 
 	private final Comparator<? super Robot> comparator = (r1, r2) -> {
-		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MAX_VALUE;
-		Double fitness2 = (r2.getFitness() != null) ? r2.getFitness() : Double.MAX_VALUE;
+		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
+		Double fitness2 = (r2.getFitness() != null) ? r2.getFitness() : Double.MIN_VALUE;
 		int r = fitness1.compareTo(fitness2);
 		return (r != 0) ? r : Long.compare(r1.getId(), r2.getId());
 	};
@@ -43,11 +47,9 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	@Override
 	protected void createStartPopulation() {
 		PopulationGenerator generator = new PopulationGenerator()
-				.setSeed(RANDOM_SEED)
+				.setRandom(random)
 				.setSize(POPULATION_SIZE)
-				.setInputSize(Robot.COUNT_INPUTS)
-				.setStateSize(STATE_INITIAL)
-				.setOutputSize(Robot.COUNT_OUTPUTS);
+				.setStateSize(STATE_INITIAL);
 		population = generator.generate();
 	}
 
@@ -56,7 +58,12 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		Double fitness;
 		boolean end;
 		FitnessCalculator calculator = new FitnessCalculator();
-		for (Robot r : population) {
+		List<Robot> robots = new LinkedList<>();
+		robots.addAll(population);
+		if (children != null)
+			robots.addAll(children);
+
+		for (Robot r : robots) {
 			if (r.getFitness() != null)
 				continue;
 
@@ -109,22 +116,21 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	@Override
 	protected void mutate() {
 		Mutator mutator = new Mutator()
-				.setSeed(RANDOM_SEED)
+				.setRandom(random)
+				.setStateMin(STATE_MIN)
+				.setStateMax(STATE_MAX)
 				.setAddState(MUTATION_ADD_STATE)
 				.setDelState(MUTATION_DEL_STATE)
 				.setChangeState(MUTATION_CHANGE_STATE)
 				.setChangeOutput(MUTATION_CHANGE_OUTPUT);
-
-		for (Robot r : children) {
-			mutator.setRobot(r)
-					.mutate();
-		}
+		children.forEach((r) -> mutator.mutate(r));
 	}
 
 	@Override
 	protected void selectSurvivors() {
 		SurvivorSelector selector = new SurvivorSelector()
-				.setPopulation(population);
+				.setParents(parents)
+				.setChildren(children);
 		population = selector.select();
 	}
 

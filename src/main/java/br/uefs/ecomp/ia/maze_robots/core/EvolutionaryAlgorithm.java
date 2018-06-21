@@ -15,7 +15,7 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		population = null;
 		parents = null;
 		children = null;
-		generation = 0;
+		generation = 1;
 	}
 
 	public void run() {
@@ -23,13 +23,12 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		calculateFitness();
 		logPopulation();
 
-		generation = 1;
 		while (!checkStopCondition()) {
 			selectParents();
 			recombine();
+			selectSurvivors();
 			mutate();
 			calculateFitness();
-			selectSurvivors();
 			generation++;
 			logPopulation();
 		}

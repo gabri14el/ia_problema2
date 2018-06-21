@@ -39,6 +39,7 @@ public class PopulationLogger {
 		if (!f.exists()) {
 			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
 				for (Field field : App.class.getDeclaredFields()) {
+					field.setAccessible(true);
 					if (Modifier.isStatic(field.getModifiers()))
 						out.println(field.getName() + ": " + field.get(null));
 				}
@@ -61,6 +62,15 @@ public class PopulationLogger {
 		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
 			System.out.println(population.get(0));
 			out.println(population.get(0));
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		f = new File(dir, String.format("gen_%05d_worse.txt", generation));
+		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
+			System.out.println(population.get(population.size() - 1));
+			out.println(population.get(population.size() - 1));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);

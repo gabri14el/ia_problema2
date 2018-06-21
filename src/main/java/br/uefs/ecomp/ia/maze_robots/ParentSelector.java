@@ -12,6 +12,6 @@ public class ParentSelector {
 	}
 
 	public List<Robot> select() {
-		return population;
+		return population.subList(0, population.size() / 2);
 	}
 }

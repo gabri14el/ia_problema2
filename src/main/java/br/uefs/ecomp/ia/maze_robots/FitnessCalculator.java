@@ -4,26 +4,30 @@ public class FitnessCalculator {
 
 	private int state;
 	private int maxSteps;
+	private Maze maze;
+	private Robot robot;
 
 	public FitnessCalculator setMaxSteps(int maxSteps) {
 		this.maxSteps = maxSteps;
 		return this;
 	}
 
-	public FitnessCalculator setMaze(Maze m) {
-		return null;
+	public FitnessCalculator setMaze(Maze maze) {
+		this.maze = maze;
+		return this;
 	}
 
-	public FitnessCalculator setRobot(Robot r) {
-		return null;
+	public FitnessCalculator setRobot(Robot robot) {
+		this.robot = robot;
+		return this;
 	}
 
 	public FitnessCalculator run() {
-		return null;
+		return this;
 	}
 
 	public Double getFitness() {
-		return null;
+		return 0.0;
 	}
 
 	public boolean itsOver() {
