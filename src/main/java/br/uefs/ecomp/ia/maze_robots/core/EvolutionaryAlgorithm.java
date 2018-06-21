@@ -26,9 +26,9 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		while (!checkStopCondition()) {
 			selectParents();
 			recombine();
-			selectSurvivors();
 			mutate();
 			calculateFitness();
+			selectSurvivors();
 			generation++;
 			logPopulation();
 		}

@@ -2,6 +2,11 @@ package br.uefs.ecomp.ia.maze_robots;
 
 public class Maze {
 
+	public static final char EMPTY = ' ';
+	public static final char WALL = '#';
+	public static final char START = 'I';
+	public static final char END = 'F';
+
 	public static Maze[] mazes = new Maze[] {
 
 			new Maze(new char[][] {
@@ -110,13 +115,71 @@ public class Maze {
 		return mazes[index];
 	}
 
-	private char m[][];
+	private final char maze[][];
+	private int sX;
+	private int sY;
+	private int eX;
+	private int eY;
 
-	private Maze(char[][] m) {
-		this.m = m;
+	private Maze(char[][] maze) {
+		this.maze = maze;
+		sX = -1;
+		sY = -1;
+		eX = -1;
+		eY = -1;
+
+		for (int x = 0; x < maze.length; x++) {
+			for (int y = 0; y < maze[x].length; y++) {
+				if (maze[x][y] != EMPTY && maze[x][y] != WALL && maze[x][y] != START && maze[x][y] != END)
+					throw new RuntimeException("Labirinto com posicao inválida: " + maze[x][y]);
+
+				if (maze[x][y] == START) {
+					sX = x;
+					sY = y;
+				}
+
+				if (maze[x][y] == END) {
+					eX = x;
+					eY = y;
+				}
+			}
+		}
+
+		if (sX == -1)
+			throw new RuntimeException("Labirinto sem inicio");
+		if (eX == -1)
+			throw new RuntimeException("Labirinto sem fim");
 	}
 
 	public char[][] getMaze() {
-		return m;
+		return maze;
+	}
+
+	public int getSX() {
+		return sX;
+	}
+
+	public int getSY() {
+		return sY;
+	}
+
+	public int getEX() {
+		return eX;
+	}
+
+	public int getEY() {
+		return eY;
+	}
+
+	public boolean isEmpty(int x, int y) {
+		return maze[x][y] == 'I' || maze[x][y] == ' ';
+	}
+
+	public boolean isWall(int x, int y) {
+		return maze[x][y] == '#';
+	}
+
+	public boolean isEnd(int x, int y) {
+		return maze[x][y] == 'F';
 	}
 }

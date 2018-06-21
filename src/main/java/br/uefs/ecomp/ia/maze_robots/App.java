@@ -9,24 +9,29 @@ import br.uefs.ecomp.ia.maze_robots.core.EvolutionaryAlgorithm;
 public class App extends EvolutionaryAlgorithm<Robot> {
 
 	// Codições de parada
-	private static final int SC_MAX_GENERATION = 1; // Número máximo de gerações para parar o algoritmo
-	private static final boolean SC_STOP_IN_END = true; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
+	private static final int SC_MAX_GENERATION = 10; // Número máximo de gerações para parar o algoritmo
+	private static final boolean SC_STOP_IN_END = false; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
 	private static final int SC_MAX_STEPS = 1000; // Máximo de iterações da máquina de estados
 	private boolean stop_end;
 
 	// Limitações
 	public static final int STATE_MIN = 1;
 	public static final int STATE_MAX = 999;
-	public static final int STATE_INITIAL = 2;
+	public static final int STATE_INITIAL = 10;
 
 	// População
 	private static final int POPULATION_SIZE = 100; // Tamanho da população
 
+	// Fitness
+	private static final double FITNESS_WALL_COLISION = -5.0; // Pontuação em caso de colisão com paredes
+	private static final double FITNESS_STEP = -1.0; // Pontuação para cada passo dado
+	private static final double FITNESS_END = 50.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
+
 	// Mutação
 	private static final int MUTATION_CHANGE_STATE = 20; // porcentagem
 	private static final int MUTATION_CHANGE_OUTPUT = 20; // porcentagem
-	private static final int MUTATION_ADD_STATE = 5; // porcentagem
-	private static final int MUTATION_DEL_STATE = 10; // porcentagem
+	private static final int MUTATION_ADD_STATE = -1; // porcentagem
+	private static final int MUTATION_DEL_STATE = -1; // porcentagem
 
 	// Outros Parâmetros
 	private static final long START_TIME = System.currentTimeMillis();
@@ -41,7 +46,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
 		Double fitness2 = (r2.getFitness() != null) ? r2.getFitness() : Double.MIN_VALUE;
 		int r = fitness1.compareTo(fitness2);
-		return (r != 0) ? r : Long.compare(r1.getId(), r2.getId());
+		return ((r != 0) ? r : Long.compare(r1.getId(), r2.getId())) * -1;
 	};
 
 	@Override
@@ -57,7 +62,13 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	protected void calculateFitness() {
 		Double fitness;
 		boolean end;
-		FitnessCalculator calculator = new FitnessCalculator();
+		FitnessCalculator calculator = new FitnessCalculator()
+				.setMaxSteps(SC_MAX_STEPS)
+				.setStopInEnd(SC_STOP_IN_END)
+				//
+				.setScoreWallColision(FITNESS_WALL_COLISION)
+				.setScoreStep(FITNESS_STEP)
+				.setScoreEnd(FITNESS_END);
 		List<Robot> robots = new LinkedList<>();
 		robots.addAll(population);
 		if (children != null)
@@ -69,10 +80,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 			fitness = 0.0;
 			end = true;
+			calculator.setRobot(r);
 			for (Maze m : Maze.mazes) {
-				calculator.setMaxSteps(SC_MAX_STEPS)
+
+				calculator
 						.setMaze(m)
-						.setRobot(r)
 						.run();
 				fitness += calculator.getFitness();
 				if (!end)

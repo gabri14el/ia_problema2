@@ -57,11 +57,14 @@ public class Mutator {
 
 		if (delState >= random.nextInt(100) && stateMin < robot.getStateSize())
 			robot.delState();
-		if (addState >= random.nextInt(100) && robot.getStateSize() < stateMax) {
+		if (addState >= random.nextInt(100) && robot.getStateSize() < stateMax)
 			robot.addState();
-			robot.forEach(robot.getStateSize() - 1, 0, (s, i) -> {
-				robot.getValue()[s][i] = new Integer[] { random.nextInt(Robot.OUTPUT_SIZE), random.nextInt(robot.getStateSize()) };
-			});
-		}
+
+		robot.forEach((s, i) -> {
+			if (robot.getOutput(s, i) == -1)
+				robot.setOutput(s, i, random.nextInt(Robot.OUTPUT_SIZE));
+			if (robot.getState(s, i) == -1)
+				robot.setState(s, i, random.nextInt(robot.getStateSize()));
+		});
 	}
 }
