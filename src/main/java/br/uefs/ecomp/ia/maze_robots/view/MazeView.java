@@ -123,7 +123,7 @@ public class MazeView extends Application {
 	}
 
 	public MazeView() {
-		maze = Maze.get(3);
+		maze = Maze.get(4);
 		robot = loadRobot();
 	}
 
