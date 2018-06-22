@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -53,7 +54,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	public static final long RANDOM_SEED = RANDOM_SEEDS[0]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private Maze maze = Maze.get(5);
+	private List<Maze> mazes = Arrays.asList(Maze.get(0));
 
 	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
@@ -92,10 +93,18 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 				.setScoreStep(FITNESS_STEP)
 				.setScoreCleanStep(FITNESS_CLEAN_STEP)
 				.setScoreRevisit(FITNESS_REVISIT)
-				.setScoreEnd(FITNESS_END)
-				.setMaze(maze);
+				.setScoreEnd(FITNESS_END);
 
-		robots.forEach((r) -> calculator.calculate(r));
+		robots.forEach((r) -> {
+			calculator.setRobot(r);
+			double fitness = 0.0;
+			for (Maze m : mazes) {
+				fitness += calculator
+						.setMaze(m)
+						.calculate();
+			}
+			r.setFitness(fitness);
+		});
 	}
 
 	@Override

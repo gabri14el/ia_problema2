@@ -14,6 +14,7 @@ public class FitnessCalculator {
 	private boolean stopInEnd;
 	private int maxSteps;
 	private Maze maze;
+	private Robot robot;
 
 	private List<Step> steps;
 
@@ -21,7 +22,7 @@ public class FitnessCalculator {
 		steps = new LinkedList<>();
 	}
 
-	public List<Step> getSteps() {
+	public List<Step> getLastMazeSteps() {
 		return steps;
 	}
 
@@ -37,6 +38,11 @@ public class FitnessCalculator {
 
 	public FitnessCalculator setMaze(Maze maze) {
 		this.maze = maze;
+		return this;
+	}
+
+	public FitnessCalculator setRobot(Robot robot) {
+		this.robot = robot;
 		return this;
 	}
 
@@ -65,7 +71,7 @@ public class FitnessCalculator {
 		return this;
 	}
 
-	public boolean calculate(Robot robot) {
+	public double calculate() {
 		steps.clear();
 		Step step = new Step();
 		Step nextStep;
@@ -73,10 +79,9 @@ public class FitnessCalculator {
 		step.rx = maze.getSX();
 		step.fitness = 0.0;
 		step.state = 0;
-		boolean end = false;
 
 		int[][] visited = new int[maze.getYLength()][maze.getXLength()];
-		for (int x = 0; x < maxSteps && !(stopInEnd && end); x++) {
+		for (int x = 0; x < maxSteps; x++) {
 			step.input = robot.getInput(maze, step.ry, step.rx);
 			step.output = robot.getOutput(step.state, step.input);
 			steps.add(step);
@@ -100,7 +105,6 @@ public class FitnessCalculator {
 				nextStep.fitness = step.fitness + scoreCleanStep;
 			if (maze.isEnd(nextStep.ry, nextStep.rx)) {
 				nextStep.fitness += scoreEnd;
-				end = true;
 			}
 			if (visited[nextStep.ry][nextStep.rx] == 0)
 				visited[nextStep.ry][nextStep.rx] = 1;
@@ -110,9 +114,7 @@ public class FitnessCalculator {
 			step = nextStep;
 		}
 
-		robot.setFitness(steps.get(steps.size() - 1).fitness);
-
-		return end;
+		return steps.get(steps.size() - 1).fitness;
 	}
 
 	public boolean itsOver() {

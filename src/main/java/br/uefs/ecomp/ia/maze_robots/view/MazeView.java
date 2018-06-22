@@ -55,9 +55,10 @@ public class MazeView extends Application {
 				.setScoreWallColision(App.FITNESS_WALL_COLISION)
 				.setScoreStep(App.FITNESS_STEP)
 				.setScoreEnd(App.FITNESS_END)
-				.setMaze(maze);
-		calculator.calculate(robot);
-		List<FitnessCalculator.Step> steps = calculator.getSteps();
+				.setMaze(maze)
+				.setRobot(robot);
+		robot.setFitness(calculator.calculate());
+		List<FitnessCalculator.Step> steps = calculator.getLastMazeSteps();
 
 		TextArea textArea = new TextArea();
 		textArea.setEditable(false);
