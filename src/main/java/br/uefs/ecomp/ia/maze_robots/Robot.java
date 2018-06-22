@@ -1,6 +1,5 @@
 package br.uefs.ecomp.ia.maze_robots;
 
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 import br.uefs.ecomp.ia.maze_robots.core.Representation;
 
@@ -84,22 +83,43 @@ public class Robot extends Representation<Integer[][][]> {
 				consumer.accept(s, i);
 	}
 
+	public Integer[][][] copyValue(int newLength) {
+		Integer[][][] v = new Integer[newLength][value[0].length][2];
+		if (newLength <= value.length) {
+			for (int s = 0; s < newLength; s++) {
+				for (int i = 0; i < value[s].length; i++) {
+					v[s][i][0] = new Integer(value[s][i][0]);
+					v[s][i][1] = new Integer(value[s][i][1]);
+				}
+			}
+		} else {
+			for (int s = 0; s < value.length; s++) {
+				for (int i = 0; i < value[s].length; i++) {
+					v[s][i][0] = new Integer(value[s][i][0]);
+					v[s][i][1] = new Integer(value[s][i][1]);
+				}
+			}
+			for (int s = value.length; s < newLength; s++) {
+				for (int i = 0; i < v[s].length; i++) {
+					v[s][i][0] = -1;
+					v[s][i][1] = -1;
+				}
+			}
+		}
+		return v;
+	}
+
 	public void delState() {
 		int state = getStateSize() - 1;
-		value = Arrays.copyOf(value, state);
-		for (Integer[] v : value[value.length - 1]) {
-			if (v[1] == state)
-				v[1] = -1;
-		}
+		value = copyValue(state);
+		for (int s = 0; s < value.length; s++)
+			for (int i = 0; i < value[s].length; i++)
+				if (value[s][i][1] == state)
+					value[s][i][1] = -1;
 	}
 
 	public void addState() {
-		value = Arrays.copyOf(value, getStateSize() + 1);
-		value[value.length - 1] = new Integer[INPUT_SIZE][2];
-		for (Integer[] v : value[value.length - 1]) {
-			v[0] = -1;
-			v[1] = -1;
-		}
+		value = copyValue(getStateSize() + 1);
 	}
 
 	// ==============================================================================================
@@ -165,14 +185,7 @@ public class Robot extends Representation<Integer[][][]> {
 	@Override
 	protected Robot clone() {
 		Robot r = new Robot(getStateSize());
-		Integer[][][] v = new Integer[value.length][value[0].length][2];
-		for (int s = 0; s < value.length; s++) {
-			for (int i = 0; i < value[s].length; i++) {
-				v[s][i][0] = new Integer(value[s][i][0]);
-				v[s][i][1] = new Integer(value[s][i][1]);
-			}
-		}
-		r.setValue(v);
+		r.setValue(copyValue(value.length));
 		return r;
 	}
 

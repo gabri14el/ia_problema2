@@ -15,7 +15,7 @@ import br.uefs.ecomp.ia.maze_robots.core.EvolutionaryAlgorithm;
 public class App extends EvolutionaryAlgorithm<Robot> {
 
 	// Codições de parada
-	public static final int SC_MAX_GENERATION = 1000; // Número máximo de gerações para parar o algoritmo
+	public static final int SC_MAX_GENERATION = 10000; // Número máximo de gerações para parar o algoritmo
 	public static final boolean SC_STOP_IN_END = false; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
 	public static final int SC_MAX_STEPS = 100; // Máximo de iterações da máquina de estados
 	public boolean stop_end;
@@ -23,10 +23,10 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	// Limitações
 	public static final int STATE_MIN = 1;
 	public static final int STATE_MAX = 999;
-	public static final int STATE_INITIAL = 1;
+	public static final int STATE_INITIAL = 10;
 
 	// População
-	public static final int POPULATION_SIZE = 100; // Tamanho da população
+	public static final int POPULATION_SIZE = 1000; // Tamanho da população
 
 	// Fitness
 	public static final double FITNESS_WALL_COLISION = -5.0; // Pontuação em caso de colisão com paredes
@@ -40,10 +40,10 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	public static final double M_CHANGE_STATE_END = 5; // porcentagem
 	public static final double M_CHANGE_OUTPUT_START = 100; // porcentagem
 	public static final double M_CHANGE_OUTPUT_END = 5; // porcentagem
-	public static final double M_ADD_STATE_START = 0; // porcentagem
+	public static final double M_ADD_STATE_START = 100; // porcentagem
 	public static final double M_ADD_STATE_END = 0; // porcentagem
 	public static final double M_DEL_STATE_START = 0; // porcentagem
-	public static final double M_DEL_STATE_END = 0; // porcentagem
+	public static final double M_DEL_STATE_END = 30; // porcentagem
 
 	// Outros Parâmetros
 	public static final long START_TIME = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	public static final long RANDOM_SEED = RANDOM_SEEDS[0]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private List<Maze> mazes = Arrays.asList(Maze.get(0));
+	private List<Maze> mazes = Arrays.asList(Maze.mazes);
 
 	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
