@@ -3,8 +3,7 @@ package br.uefs.ecomp.ia.maze_robots;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class PopulationLogger {
 		dir.mkdirs();
 
 		File f = new File(dir, "output.txt");
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF-8"));) {
+		try (PrintStream out = new PrintStream(new FileOutputStream(f, true), true, "UTF-8")) {
 			out.format("---------------- GENERATION %05d ----------------\n", generation);
 			out.format("Fitness Max - id: %6d states: %3d    fitness: %5.0f\n", best.getId(), best.getStateSize(), best.getFitness());
 			out.format("Fitness Min - id: %6d states: %3d    fitness: %5.0f\n", worse.getId(), worse.getStateSize(), worse.getFitness());
@@ -70,6 +69,8 @@ public class PopulationLogger {
 			out.format("States Max                     %5d\n", maxStates);
 			out.format("States Min                     %5d\n", minStates);
 			out.format("Best  - %s\n", best.toString());
+			if (generation >= App.SC_MAX_GENERATION)
+				App.getInstance().logTimes(out);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);

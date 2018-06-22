@@ -14,6 +14,14 @@ import br.uefs.ecomp.ia.maze_robots.core.EvolutionaryAlgorithm;
 
 public class App extends EvolutionaryAlgorithm<Robot> {
 
+	private static App instance;
+
+	public static App getInstance() {
+		if (instance == null)
+			instance = new App();
+		return instance;
+	}
+
 	// Codições de parada
 	public static final int SC_MAX_GENERATION = 10000; // Número máximo de gerações para parar o algoritmo
 	public static final boolean SC_STOP_IN_END = false; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
@@ -174,6 +182,6 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 			System.exit(0);
 		}
 
-		new App().run();
+		getInstance().run();
 	}
 }

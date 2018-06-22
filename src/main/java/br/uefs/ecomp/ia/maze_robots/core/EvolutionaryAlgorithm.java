@@ -1,5 +1,6 @@
 package br.uefs.ecomp.ia.maze_robots.core;
 
+import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
 	protected long generation;
 
-	protected Map<String, Long> times;
+	protected Map<String, Double> times;
 
 	public EvolutionaryAlgorithm() {
 		population = null;
@@ -30,6 +31,7 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		System.out.println();
 
 		generation = 1;
+		long start = System.currentTimeMillis();
 		long startGenerator;
 		while (!checkStopCondition()) {
 			startGenerator = System.currentTimeMillis();
@@ -51,15 +53,20 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
 			logPopulation();
 			generation++;
-			times.put("Total", getTime(startGenerator));
-			System.out.println("----- Times -----");
-			times.forEach((k, v) -> System.out.println(k + ": " + v));
-			System.out.println("\n");
+			times.put("Total G.", getTime(startGenerator));
+			logTimes(System.out);
 		}
+		times.put("Total", getTime(start));
 	}
 
-	protected long getTime(long startGenerator) {
-		return (System.currentTimeMillis() - startGenerator);
+	public void logTimes(PrintStream out) {
+		out.println("--------- Times ---------");
+		times.forEach((k, v) -> out.format("%17s: %3.3fs\n", k, v));
+		out.println("\n");
+	}
+
+	protected double getTime(long startGenerator) {
+		return ((double) (System.currentTimeMillis() - startGenerator)) / 1000.0;
 	}
 
 	protected abstract void createStartPopulation();

@@ -28,7 +28,7 @@ public class Robot extends Representation<Integer[][][]> {
 	 * 7º bit - Final ao leste
 	 * 8º bit - Final ao sul
 	 */
-	private static final int INPUT_SIZE = 0b11111111;
+	public static final int INPUT_SIZE = 0b11111111;
 
 	/* OUTPUTS = [000-100]
 	 * 000 - Nada
