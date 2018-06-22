@@ -38,7 +38,7 @@ public class Robot extends Representation<Integer[][][]> {
 	 * 011 - Direita
 	 * 100 - Descer
 	 */
-	public static final int OUTPUT_SIZE = 0b100;
+	public static final int OUTPUT_SIZE = 5;
 
 	public Robot(int stateSize) {
 		value = new Integer[stateSize][INPUT_SIZE][2];
@@ -48,6 +48,10 @@ public class Robot extends Representation<Integer[][][]> {
 				v[1] = -1;
 			}
 		}
+	}
+
+	public Robot(Integer[][][] value) {
+		this.value = value;
 	}
 
 	public int getStateSize() {
@@ -102,44 +106,44 @@ public class Robot extends Representation<Integer[][][]> {
 	// =================================== Navegação no Labirinto ===================================
 	// ==============================================================================================
 
-	public int getInput(Maze maze, int rx, int ry) {
+	public int getInput(Maze maze, int ry, int rx) {
 		int input = 0;
 
 		// Não é possível ir mais à esquerda ou é uma parede
-		input += (ry == 0 || maze.getMaze()[rx][ry - 1] == Maze.WALL) ? 1 : 0;
+		input += (rx == 0 || maze.isWall(ry, rx - 1)) ? 1 : 0;
 		input <<= 1;
 
 		// Não é possível ir mais para cima ou é uma parede;
-		input += (rx == 0 || maze.getMaze()[rx - 1][ry] == Maze.WALL) ? 1 : 0;
+		input += (ry == 0 || maze.isWall(ry - 1, rx)) ? 1 : 0;
 		input <<= 1;
 
 		// Não é possível ir mais à direita ou é uma parede
-		input += ((ry + 1) == maze.getMaze()[0].length || maze.getMaze()[rx][ry + 1] == Maze.WALL) ? 1 : 0;
+		input += ((rx + 1) == maze.getXLength() || maze.isWall(ry, rx + 1)) ? 1 : 0;
 		input <<= 1;
 
 		// Não é possível ir mais para baixo ou é uma parede;
-		input += ((rx + 1) == maze.getMaze().length || maze.getMaze()[rx + 1][ry] == Maze.WALL) ? 1 : 0;
+		input += ((ry + 1) == maze.getYLength() || maze.isWall(ry + 1, rx)) ? 1 : 0;
 		input <<= 1;
 
 		// Final está ao oeste
-		input += (maze.getEY() < ry) ? 1 : 0;
-		input <<= 1;
-
-		// Final ao norte
 		input += (maze.getEX() < rx) ? 1 : 0;
 		input <<= 1;
 
+		// Final ao norte
+		input += (maze.getEY() < ry) ? 1 : 0;
+		input <<= 1;
+
 		// Final ao leste
-		input += (ry < maze.getEY()) ? 1 : 0;
+		input += (rx < maze.getEX()) ? 1 : 0;
 		input <<= 1;
 
 		// Final ao sul
-		input += (rx < maze.getEX()) ? 1 : 0;
+		input += (ry < maze.getEY()) ? 1 : 0;
 
 		return input;
 	}
 
-	public int sumX(int output) {
+	public int sumY(int output) {
 		if (output == 0b010)
 			return -1;
 		if (output == 0b100)
@@ -147,7 +151,7 @@ public class Robot extends Representation<Integer[][][]> {
 		return 0;
 	}
 
-	public int sumY(int output) {
+	public int sumX(int output) {
 		if (output == 0b001)
 			return -1;
 		if (output == 0b011)
@@ -161,7 +165,14 @@ public class Robot extends Representation<Integer[][][]> {
 	@Override
 	protected Robot clone() {
 		Robot r = new Robot(getStateSize());
-		r.value = Arrays.copyOf(this.value, this.value.length);
+		Integer[][][] v = new Integer[value.length][value[0].length][2];
+		for (int s = 0; s < value.length; s++) {
+			for (int i = 0; i < value[s].length; i++) {
+				v[s][i][0] = new Integer(value[s][i][0]);
+				v[s][i][1] = new Integer(value[s][i][1]);
+			}
+		}
+		r.setValue(v);
 		return r;
 	}
 
@@ -172,7 +183,7 @@ public class Robot extends Representation<Integer[][][]> {
 		for (int s = 0; s < value.length; s++) {
 			r += '{';
 			for (int i = 0; i < value[s].length; i++) {
-				r += String.format("%d|%04d", getOutput(s, i), getState(s, i));
+				r += String.format("{%d,%d}", getOutput(s, i), getState(s, i));
 				if (i < value[s].length - 1)
 					r += ',';
 			}

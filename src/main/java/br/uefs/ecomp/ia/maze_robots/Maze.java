@@ -38,10 +38,10 @@ public class Maze {
 					###########
 					#I        #
 					#######   #
-					  #   #
-					  #   #
-					  ##F##
-					  #####
+					      #   #
+					      #   #
+					      ##F##
+					      #####
 					*/
 					{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 					{ '#', 'I', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
@@ -64,10 +64,10 @@ public class Maze {
 					{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 					{ '#', 'F', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 					{ '#', '#', '#', '#', ' ', ' ', ' ', '#', '#', '#', '#' },
-					{ ' ', ' ', ' ', '#', ' ', ' ', ' ', '#' },
-					{ ' ', ' ', ' ', '#', ' ', ' ', ' ', '#' },
-					{ ' ', ' ', ' ', '#', '#', 'I', '#', '#' },
-					{ ' ', ' ', ' ', '#', '#', '#', '#', '#' }
+					{ ' ', ' ', ' ', '#', ' ', ' ', ' ', '#', ' ', ' ', ' ' },
+					{ ' ', ' ', ' ', '#', ' ', ' ', ' ', '#', ' ', ' ', ' ' },
+					{ ' ', ' ', ' ', '#', '#', 'I', '#', '#', ' ', ' ', ' ' },
+					{ ' ', ' ', ' ', '#', '#', '#', '#', '#', ' ', ' ', ' ' }
 			}),
 			new Maze(new char[][] {
 					/*
@@ -116,38 +116,38 @@ public class Maze {
 	}
 
 	private final char maze[][];
-	private int sX;
 	private int sY;
-	private int eX;
+	private int sX;
 	private int eY;
+	private int eX;
 
 	private Maze(char[][] maze) {
 		this.maze = maze;
-		sX = -1;
 		sY = -1;
-		eX = -1;
+		sX = -1;
 		eY = -1;
+		eX = -1;
 
-		for (int x = 0; x < maze.length; x++) {
-			for (int y = 0; y < maze[x].length; y++) {
-				if (maze[x][y] != EMPTY && maze[x][y] != WALL && maze[x][y] != START && maze[x][y] != END)
-					throw new RuntimeException("Labirinto com posicao inválida: " + maze[x][y]);
+		for (int y = 0; y < getYLength(); y++) {
+			for (int x = 0; x < getXLength(); x++) {
+				if (maze[y][x] != EMPTY && maze[y][x] != WALL && maze[y][x] != START && maze[y][x] != END)
+					throw new RuntimeException("Labirinto com posicao inválida: " + maze[y][x]);
 
-				if (maze[x][y] == START) {
-					sX = x;
+				if (maze[y][x] == START) {
 					sY = y;
+					sX = x;
 				}
 
-				if (maze[x][y] == END) {
-					eX = x;
+				if (maze[y][x] == END) {
 					eY = y;
+					eX = x;
 				}
 			}
 		}
 
-		if (sX == -1)
+		if (sY == -1)
 			throw new RuntimeException("Labirinto sem inicio");
-		if (eX == -1)
+		if (eY == -1)
 			throw new RuntimeException("Labirinto sem fim");
 	}
 
@@ -155,31 +155,43 @@ public class Maze {
 		return maze;
 	}
 
-	public int getSX() {
-		return sX;
+	public int getYLength() {
+		return maze.length;
+	}
+
+	public int getXLength() {
+		return maze[0].length;
 	}
 
 	public int getSY() {
 		return sY;
 	}
 
-	public int getEX() {
-		return eX;
+	public int getSX() {
+		return sX;
 	}
 
 	public int getEY() {
 		return eY;
 	}
 
-	public boolean isEmpty(int x, int y) {
-		return maze[x][y] == 'I' || maze[x][y] == ' ';
+	public int getEX() {
+		return eX;
 	}
 
-	public boolean isWall(int x, int y) {
-		return maze[x][y] == '#';
+	public char get(int y, int x) {
+		return maze[y][x];
 	}
 
-	public boolean isEnd(int x, int y) {
-		return maze[x][y] == 'F';
+	public boolean isEmpty(int y, int x) {
+		return maze[y][x] == 'I' || maze[y][x] == ' ';
+	}
+
+	public boolean isWall(int y, int x) {
+		return maze[y][x] == '#';
+	}
+
+	public boolean isEnd(int y, int x) {
+		return maze[y][x] == 'F';
 	}
 }

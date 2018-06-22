@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 public class PopulationLogger {
@@ -31,50 +29,44 @@ public class PopulationLogger {
 	}
 
 	public void log() {
-		File dir = new File("output" + File.separator + "run_" + startTime);
+		Robot best = population.get(0);
+		long equalBest = population.stream().filter((r) -> r.getFitness().doubleValue() == best.getFitness().doubleValue()).count();
+		Robot worse = population.get(population.size() - 1);
+		long equalWorse = population.stream().filter((r) -> r.getFitness().doubleValue() == worse.getFitness().doubleValue()).count();
+		double average = population.stream().mapToDouble(Robot::getFitness).average().getAsDouble();
+		long aboveAverage = population.stream().filter((r) -> r.getFitness().doubleValue() >= average).count();
+		long belowAverage = population.stream().filter((r) -> r.getFitness().doubleValue() < average).count();
+
+		System.out.format("---------------- GENERATION %05d ----------------\n", generation);
+		System.out.format("Best  - id: %6d fitness: %5.0f\n", best.getId(), best.getFitness());
+		System.out.format("Worse - id: %6d fitness: %5.0f\n", worse.getId(), worse.getFitness());
+		System.out.format("Count Equal Best:        %5d\n", equalBest);
+		System.out.format("Count Equal Worse:       %5d\n", equalWorse);
+		System.out.format("Fitness Average:         %5.0f\n", average);
+		System.out.format("Count Above Average:     %5d\n", aboveAverage);
+		System.out.format("Count Below Average:     %5d\n", belowAverage);
+
+		File dir = new File("output" + File.separator + String.format("run_%13d", startTime));
 		dir.mkdirs();
-		File f;
 
-		f = new File(dir, String.format("definitions.txt"));
-		if (!f.exists()) {
-			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-				for (Field field : App.class.getDeclaredFields()) {
-					field.setAccessible(true);
-					if (Modifier.isStatic(field.getModifiers()))
-						out.println(field.getName() + ": " + field.get(null));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
-			}
-		}
+		File f = new File(dir, "output.txt");
+		File f2 = new File("output", "output.txt");
+		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF-8"));
+				PrintWriter out2 = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f2, true), "UTF-8"));) {
+			out.format("---------------- GENERATION %05d ----------------\n", generation);
+			out.format("Best  - %s\n", best.toString());
+			out.format("Worse - %s\n", worse.toString());
+			out.format("Count Equal Best:        %3d\n", equalBest);
+			out.format("Count Equal Worse:       %3d\n", equalWorse);
+			out.format("Fitness Average:         %5.0f\n", average);
+			out.format("Count Above Average:     %3d\n", aboveAverage);
+			out.format("Count Below Average:     %3d\n", belowAverage);
 
-		System.out.println(String.format("---------------------------------------------- GENERATION %05d ----------------------------------------------", generation));
-		f = new File(dir, String.format("gen_%05d_popu.txt", generation));
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-			population.forEach((r) -> out.println(r));
+			out2.format("Best  - %s\n", best.toString());
+			out2.format("Worse - %s\n", worse.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
-
-		f = new File(dir, String.format("gen_%05d_best.txt", generation));
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-			System.out.println(population.get(0));
-			out.println(population.get(0));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		f = new File(dir, String.format("gen_%05d_worse.txt", generation));
-		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-			System.out.println(population.get(population.size() - 1));
-			out.println(population.get(population.size() - 1));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-		System.out.println("\n\n");
 	}
 }

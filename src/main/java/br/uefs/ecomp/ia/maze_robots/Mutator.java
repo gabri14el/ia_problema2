@@ -6,11 +6,11 @@ public class Mutator {
 
 	private Random random;
 	private int stateMin;
-	private int addState;
 	private int stateMax;
-	private int delState;
-	private int changeState;
-	private int changeOutput;
+	private double addState;
+	private double delState;
+	private double changeState;
+	private double changeOutput;
 
 	public Mutator setStateMin(int stateMin) {
 		this.stateMin = stateMin;
@@ -27,37 +27,41 @@ public class Mutator {
 		return this;
 	}
 
-	public Mutator setAddState(int addState) {
-		this.addState = addState;
+	public Mutator setAddState(double mAddStateStart) {
+		this.addState = mAddStateStart;
 		return this;
 	}
 
-	public Mutator setDelState(int delState) {
+	public Mutator setDelState(double delState) {
 		this.delState = delState;
 		return this;
 	}
 
-	public Mutator setChangeState(int changeState) {
+	public Mutator setChangeState(double changeState) {
 		this.changeState = changeState;
 		return this;
 	}
 
-	public Mutator setChangeOutput(int changeOutput) {
+	public Mutator setChangeOutput(double changeOutput) {
 		this.changeOutput = changeOutput;
 		return this;
 	}
 
+	public boolean testChance(double value) {
+		return value >= (random.nextInt(100) + 1);
+	}
+
 	public void mutate(Robot robot) {
 		robot.forEach((s, i) -> {
-			if (changeOutput >= random.nextInt(100))
+			if (testChance(changeOutput))
 				robot.setOutput(s, i, random.nextInt(Robot.OUTPUT_SIZE));
-			if (changeState >= random.nextInt(100))
+			if (testChance(changeState))
 				robot.setState(s, i, random.nextInt(robot.getStateSize()));
 		});
 
-		if (delState >= random.nextInt(100) && stateMin < robot.getStateSize())
+		if (testChance(delState) && stateMin < robot.getStateSize())
 			robot.delState();
-		if (addState >= random.nextInt(100) && robot.getStateSize() < stateMax)
+		if (testChance(addState) && robot.getStateSize() < stateMax)
 			robot.addState();
 
 		robot.forEach((s, i) -> {

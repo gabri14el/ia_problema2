@@ -1,6 +1,8 @@
 package br.uefs.ecomp.ia.maze_robots.core;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
@@ -11,32 +13,58 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
 	protected long generation;
 
+	protected Map<String, Long> times;
+
 	public EvolutionaryAlgorithm() {
 		population = null;
 		parents = null;
 		children = null;
-		generation = 1;
+		generation = 0;
+		times = new LinkedHashMap<>();
 	}
 
 	public void run() {
 		createStartPopulation();
-		calculateFitness();
+		calculateFitness(population);
 		logPopulation();
+		System.out.println();
 
+		generation = 1;
+		long startGenerator;
 		while (!checkStopCondition()) {
+			startGenerator = System.currentTimeMillis();
+
 			selectParents();
+			times.put("Select Parents", getTime(startGenerator));
+
 			recombine();
+			times.put("Recombine", getTime(startGenerator));
+
 			mutate();
-			calculateFitness();
+			times.put("Mutate", getTime(startGenerator));
+
+			calculateFitness(children);
+			times.put("Calculate Fitness", getTime(startGenerator));
+
 			selectSurvivors();
-			generation++;
+			times.put("Select Survivors", getTime(startGenerator));
+
 			logPopulation();
+			generation++;
+			times.put("Total", getTime(startGenerator));
+			System.out.println("----- Times -----");
+			times.forEach((k, v) -> System.out.println(k + ": " + v));
+			System.out.println("\n");
 		}
+	}
+
+	protected long getTime(long startGenerator) {
+		return (System.currentTimeMillis() - startGenerator);
 	}
 
 	protected abstract void createStartPopulation();
 
-	protected abstract void calculateFitness();
+	protected abstract void calculateFitness(List<R> r);
 
 	protected abstract void logPopulation();
 
