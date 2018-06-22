@@ -209,6 +209,10 @@ public class Maze {
 		return maze[y][x] == '#';
 	}
 
+	public boolean isStart(int y, int x) {
+		return maze[y][x] == 'I';
+	}
+
 	public boolean isEnd(int y, int x) {
 		return maze[y][x] == 'F';
 	}

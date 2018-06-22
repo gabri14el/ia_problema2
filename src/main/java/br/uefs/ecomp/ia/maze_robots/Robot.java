@@ -29,6 +29,7 @@ public class Robot extends Representation<Integer[][][]> {
 	 * 8º bit - Final ao sul
 	 */
 	public static final int INPUT_SIZE = 0b11111111;
+	public static final int INPUT_BITS = 8;
 
 	/* OUTPUTS = [000-100]
 	 * 000 - Nada
@@ -123,8 +124,59 @@ public class Robot extends Representation<Integer[][][]> {
 	}
 
 	// ==============================================================================================
+	// ========================================== Sensores =============+============================
+	// ==============================================================================================
+
+	public int getLeftWallSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(0));
+	}
+
+	public int getUpWallSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(1));
+	}
+
+	public int getRightWallSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(2));
+	}
+
+	public int getDownWallSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(3));
+	}
+
+	public int getLeftEndSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(4));
+	}
+
+	public int getUpEndSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(5));
+	}
+
+	public int getRightEndSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(6));
+	}
+
+	public int getDownEndSensor(Maze maze, int ry, int rx) {
+		String input = getInputBinary(maze, ry, rx);
+		return Integer.parseInt("" + input.charAt(7));
+	}
+
+	// ==============================================================================================
 	// =================================== Navegação no Labirinto ===================================
 	// ==============================================================================================
+
+	public String getInputBinary(Maze maze, int ry, int rx) {
+		String i = Integer.toBinaryString(getInput(maze, ry, rx));
+		for (int x = i.length(); x < INPUT_BITS; x++)
+			i = '0' + i;
+		return i;
+	}
 
 	public int getInput(Maze maze, int ry, int rx) {
 		int input = 0;
