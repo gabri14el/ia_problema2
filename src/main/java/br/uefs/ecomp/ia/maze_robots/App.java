@@ -23,35 +23,37 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	}
 
 	// Codições de parada
-	public static final int SC_MAX_GENERATION = 10000; // Número máximo de gerações para parar o algoritmo
+	public static final int SC_MAX_GENERATION = 25000; // Número máximo de gerações para parar o algoritmo
 	public static final boolean SC_STOP_IN_END = false; // Indica se o algoritmo deve ser finalizado quando um robô chega ao fim;
-	public static final int SC_MAX_STEPS = 100; // Máximo de iterações da máquina de estados
 	public boolean stop_end;
 
 	// Limitações
 	public static final int STATE_MIN = 1;
-	public static final int STATE_MAX = 999;
-	public static final int STATE_INITIAL = 10;
+	public static final int STATE_MAX = 5;
+	public static final int STATE_INITIAL = 3;
 
 	// População
-	public static final int POPULATION_SIZE = 1000; // Tamanho da população
+	public static final int POPULATION_SIZE = 500; // Tamanho da população
+
+	// Seleção de Pais
+	public static final int PS_GOOD_RATE = 30; // Taxa de seleção dos melhores pais. O restante é random
 
 	// Fitness
-	public static final double FITNESS_WALL_COLISION = -5.0; // Pontuação em caso de colisão com paredes
+	public static final double FITNESS_WALL_COLISION = -10.0; // Pontuação em caso de colisão com paredes
 	public static final double FITNESS_STEP = -1.0; // Pontuação para cada passo dado
 	public static final double FITNESS_CLEAN_STEP = 5.0; // Pontuação para cada passo dado em um local disponível
-	public static final double FITNESS_REVISIT = -25.0; // Pontuação para cada passo dado em um local disponível
-	public static final double FITNESS_END = 50.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
+	public static final double FITNESS_REVISIT = -50.0; // Pontuação para cada passo dado em um local disponível
+	public static final double FITNESS_END = 100.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
 
 	// Mutação
 	public static final double M_CHANGE_STATE_START = 100; // porcentagem
-	public static final double M_CHANGE_STATE_END = 5; // porcentagem
+	public static final double M_CHANGE_STATE_END = 30; // porcentagem
 	public static final double M_CHANGE_OUTPUT_START = 100; // porcentagem
-	public static final double M_CHANGE_OUTPUT_END = 5; // porcentagem
-	public static final double M_ADD_STATE_START = 100; // porcentagem
+	public static final double M_CHANGE_OUTPUT_END = 30; // porcentagem
+	public static final double M_ADD_STATE_START = 10; // porcentagem
 	public static final double M_ADD_STATE_END = 0; // porcentagem
 	public static final double M_DEL_STATE_START = 0; // porcentagem
-	public static final double M_DEL_STATE_END = 30; // porcentagem
+	public static final double M_DEL_STATE_END = 10; // porcentagem
 
 	// Outros Parâmetros
 	public static final long START_TIME = System.currentTimeMillis();
@@ -59,10 +61,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 			135827968109L, 208248857186L, 432099974000L, 863278201449L, 461431272318L, 666015161980L, 586981007620L, 877453781828L, 574598151547L, 218042335334L, 435229484920L, 236406828574L,
 			363310412856L, 337560821399L, 918214207238L, 654497046710L, 923238918586L, 388953847145L, 823029413652L, 861453743932L
 	};
-	public static final long RANDOM_SEED = RANDOM_SEEDS[0]; // Semente para gerar números aleatórios usada atualmente
+	public static final long RANDOM_SEED = RANDOM_SEEDS[7]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private List<Maze> mazes = Arrays.asList(Maze.mazes);
+	private List<Maze> mazes = Arrays.asList(Maze.get(0), Maze.get(1), Maze.get(2), Maze.get(3), Maze.get(4), Maze.get(5), Maze.get(6), Maze.get(7), Maze.get(8), Maze.get(9), Maze.get(10),
+			Maze.get(11));
 
 	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
@@ -71,7 +74,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	};
 
 	/**
-	 * Retorna um valod decimal que indica a porcentagem de conclusão do processo
+	 * Retorna um valor decimal que indica a porcentagem de conclusão do processo
 	 * 
 	 * @return 0.0 ~ 1.0
 	 */
@@ -95,14 +98,12 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	@Override
 	protected void calculateFitness(List<Robot> robots) {
 		FitnessCalculator calculator = new FitnessCalculator()
-				.setMaxSteps(SC_MAX_STEPS)
 				.setStopInEnd(SC_STOP_IN_END)
 				.setScoreWallColision(FITNESS_WALL_COLISION)
 				.setScoreStep(FITNESS_STEP)
 				.setScoreCleanStep(FITNESS_CLEAN_STEP)
 				.setScoreRevisit(FITNESS_REVISIT)
 				.setScoreEnd(FITNESS_END);
-
 		robots.forEach((r) -> {
 			calculator.setRobot(r);
 			double fitness = 0.0;
@@ -133,7 +134,9 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	protected void selectParents() {
 		population.sort(comparator);
 		ParentSelector selector = new ParentSelector()
-				.setPopulation(population);
+				.setPopulation(population)
+				.setRandom(random)
+				.setGoodRate(PS_GOOD_RATE);
 		parents = selector.select();
 	}
 

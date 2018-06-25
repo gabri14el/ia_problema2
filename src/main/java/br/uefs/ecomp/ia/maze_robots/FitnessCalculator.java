@@ -12,7 +12,6 @@ public class FitnessCalculator {
 	private double scoreEnd;
 
 	private boolean stopInEnd;
-	private int maxSteps;
 	private Maze maze;
 	private Robot robot;
 
@@ -24,11 +23,6 @@ public class FitnessCalculator {
 
 	public List<Step> getLastMazeSteps() {
 		return steps;
-	}
-
-	public FitnessCalculator setMaxSteps(int maxSteps) {
-		this.maxSteps = maxSteps;
-		return this;
 	}
 
 	public FitnessCalculator setStopInEnd(boolean stopInEnd) {
@@ -79,6 +73,7 @@ public class FitnessCalculator {
 		step.rx = maze.getSX();
 		step.fitness = 0.0;
 		step.state = 0;
+		int maxSteps = (int) (maze.getEmptyPositions() * 2.5);
 
 		int[][] visited = new int[maze.getYLength()][maze.getXLength()];
 		for (int x = 0; x < maxSteps; x++) {
@@ -94,7 +89,7 @@ public class FitnessCalculator {
 			nextStep.fitness = step.fitness + scoreStep;
 
 			// Houve colisão com paredes ou tentou sair do vetor
-			if (maze.isWall(nextStep.ry, nextStep.rx) || nextStep.ry == 0 || nextStep.ry > maze.getYLength() || nextStep.rx == 0 || nextStep.rx > maze.getXLength()) {
+			if (nextStep.ry == -1 || nextStep.ry == maze.getYLength() || nextStep.rx == -1 || nextStep.rx == maze.getXLength() || maze.isWall(nextStep.ry, nextStep.rx)) {
 				// Volta para a posição anterior
 				nextStep.ry -= robot.sumY(step.output);
 				nextStep.rx -= robot.sumX(step.output);
@@ -106,7 +101,7 @@ public class FitnessCalculator {
 			if (maze.isEnd(nextStep.ry, nextStep.rx)) {
 				nextStep.fitness += scoreEnd;
 			}
-			if (visited[nextStep.ry][nextStep.rx] == 0)
+			if (visited[nextStep.ry][nextStep.rx] == 0 && nextStep.ry != step.ry && nextStep.rx != step.rx)
 				visited[nextStep.ry][nextStep.rx] = 1;
 			else
 				nextStep.fitness += scoreRevisit;
