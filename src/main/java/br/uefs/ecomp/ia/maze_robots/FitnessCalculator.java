@@ -11,7 +11,6 @@ public class FitnessCalculator {
 	private double scoreRevisit;
 	private double scoreEnd;
 
-	private boolean stopInEnd;
 	private Maze maze;
 	private Robot robot;
 
@@ -23,11 +22,6 @@ public class FitnessCalculator {
 
 	public List<Step> getLastMazeSteps() {
 		return steps;
-	}
-
-	public FitnessCalculator setStopInEnd(boolean stopInEnd) {
-		this.stopInEnd = stopInEnd;
-		return this;
 	}
 
 	public FitnessCalculator setMaze(Maze maze) {

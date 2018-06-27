@@ -11,10 +11,12 @@ import br.uefs.ecomp.ia.maze_robots.Robot;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -23,6 +25,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MazeView extends Application {
 
@@ -30,7 +33,7 @@ public class MazeView extends Application {
 	private Maze maze;
 
 	public MazeView() {
-		maze = Maze.get(15);
+		maze = Maze.get(16);
 		robot = loadRobot();
 	}
 
@@ -99,7 +102,6 @@ public class MazeView extends Application {
 		currentStepProperty().addListener((obs, o, n) -> contentPane.setCenter(createMazeView(n)));
 
 		FitnessCalculator calculator = new FitnessCalculator()
-				.setStopInEnd(App.SC_STOP_IN_END)
 				.setScoreWallColision(App.FITNESS_WALL_COLISION)
 				.setScoreStep(App.FITNESS_STEP)
 				.setScoreEnd(App.FITNESS_END)
@@ -131,14 +133,19 @@ public class MazeView extends Application {
 		HBox buttonsPane = new HBox(5, firstButton, nextButton, previousButton, lastButton);
 		buttonsPane.setAlignment(Pos.CENTER);
 
-		HBox sensorsPane = new HBox(5);
+		VBox sensorsPane = new VBox(15);
+		sensorsPane.setPadding(new Insets(5));
 		sensorsPane.setAlignment(Pos.CENTER);
+
+		VBox itemPane;
 
 		// Wall Sensor
 		GridPane grid = new GridPane();
 		grid.setHgap(1);
 		grid.setVgap(1);
-		sensorsPane.getChildren().add(grid);
+		itemPane = new VBox(2, grid, new Label("Wall Sensor"));
+		itemPane.setAlignment(Pos.CENTER);
+		sensorsPane.getChildren().add(itemPane);
 
 		Pane leftWallSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> leftWallSensor.setStyle("-fx-background-color: " + ((robot.getLeftWallSensor(maze, n.ry, n.rx) == 1) ? "red" : "#11FF11") + ";"));
@@ -162,7 +169,9 @@ public class MazeView extends Application {
 		grid = new GridPane();
 		grid.setHgap(1);
 		grid.setVgap(1);
-		sensorsPane.getChildren().add(grid);
+		itemPane = new VBox(2, grid, new Label("End Sensor"));
+		itemPane.setAlignment(Pos.CENTER);
+		sensorsPane.getChildren().add(itemPane);
 
 		Pane leftEndSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> leftEndSensor.setStyle("-fx-background-color: " + ((robot.getLeftEndSensor(maze, n.ry, n.rx) == 1) ? "#11FF11" : "red") + ";"));
@@ -186,39 +195,66 @@ public class MazeView extends Application {
 		grid = new GridPane();
 		grid.setHgap(1);
 		grid.setVgap(1);
-		HBox outputPane = new HBox(grid);
-		outputPane.setAlignment(Pos.CENTER);
+		itemPane = new VBox(2, grid, new Label("Next Output"));
+		itemPane.setAlignment(Pos.CENTER);
+		sensorsPane.getChildren().add(itemPane);
 
 		Pane leftOutputSensor = createStatusPane();
-		currentStepProperty().addListener((obs, o, n) -> leftOutputSensor.setStyle("-fx-background-color: " + ((n.output == 1) ? "#11FF11" : "red") + ";"));
+		currentStepProperty().addListener((obs, o, n) -> leftOutputSensor.setStyle("-fx-background-color: " + ((n.output == 1) ? "#117711" : "#771111") + ";"));
 		grid.add(leftOutputSensor, 0, 1);
 
 		Pane upOutputSensor = createStatusPane();
-		currentStepProperty().addListener((obs, o, n) -> upOutputSensor.setStyle("-fx-background-color: " + ((n.output == 2) ? "#11FF11" : "red") + ";"));
+		currentStepProperty().addListener((obs, o, n) -> upOutputSensor.setStyle("-fx-background-color: " + ((n.output == 2) ? "#117711" : "#771111") + ";"));
 		grid.add(upOutputSensor, 1, 0);
 
 		grid.add(createRobot("black"), 1, 1);
 
 		Pane rightOutputSensor = createStatusPane();
-		currentStepProperty().addListener((obs, o, n) -> rightOutputSensor.setStyle("-fx-background-color: " + ((n.output == 3) ? "#11FF11" : "red") + ";"));
+		currentStepProperty().addListener((obs, o, n) -> rightOutputSensor.setStyle("-fx-background-color: " + ((n.output == 3) ? "#117711" : "#771111") + ";"));
 		grid.add(rightOutputSensor, 2, 1);
 
 		Pane downOutputSensor = createStatusPane();
-		currentStepProperty().addListener((obs, o, n) -> downOutputSensor.setStyle("-fx-background-color: " + ((n.output == 4) ? "#11FF11" : "red") + ";"));
+		currentStepProperty().addListener((obs, o, n) -> downOutputSensor.setStyle("-fx-background-color: " + ((n.output == 4) ? "#117711" : "#771111") + ";"));
 		grid.add(downOutputSensor, 1, 2);
 
-		VBox pane = new VBox(10, buttonsPane, contentPane, sensorsPane, outputPane);
+		// States
+		itemPane = new VBox();
+		Label currenttsateLabel = new Label("0");
+		currenttsateLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+		Label nextStateLabel = new Label("0");
+		nextStateLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+		Label maxStatesLabel = new Label("" + robot.getStateSize());
+		maxStatesLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+		currentStepProperty().addListener((obs, o, n) -> {
+			currenttsateLabel.setText(nextStateLabel.getText());
+			nextStateLabel.setText("" + n.state);
+		});
+		itemPane.getChildren().addAll(currenttsateLabel, new Label("Current State"), nextStateLabel, new Label("Next State"), maxStatesLabel, new Label("Max States"));
+		itemPane.setAlignment(Pos.CENTER);
+		sensorsPane.getChildren().add(itemPane);
+
+		HBox pane1 = new HBox(10, contentPane, sensorsPane);
+		VBox pane = new VBox(10, pane1, buttonsPane);
 		pane.setAlignment(Pos.TOP_CENTER);
 		pane.setOnKeyPressed((ke) -> {
-			if (KeyCode.LEFT == ke.getCode()) {
+			if (KeyCode.UP == ke.getCode()) {
+				setStep(steps.get(0));
+				ke.consume();
+			} else if (KeyCode.DOWN == ke.getCode()) {
+				setStep(steps.get(steps.size() - 1));
+				ke.consume();
+			} else if (KeyCode.LEFT == ke.getCode()) {
 				setStep(steps.get(steps.indexOf(getStep()) - 1));
 				ke.consume();
 			} else if (KeyCode.RIGHT == ke.getCode()) {
 				setStep(steps.get(steps.indexOf(getStep()) + 1));
 				ke.consume();
+			} else if (KeyCode.ESCAPE == ke.getCode()) {
+				System.exit(0);
 			}
 		});
-		stage.setScene(new Scene(pane, (maze.getXLength() * 30), (maze.getYLength() * 30) + 230));
+		stage.initStyle(StageStyle.UNDECORATED);
+		stage.setScene(new Scene(pane, (maze.getXLength() * 30) + 120, (maze.getYLength() * 30) + 40));
 		stage.setResizable(false);
 
 		setStep(steps.get(0));
