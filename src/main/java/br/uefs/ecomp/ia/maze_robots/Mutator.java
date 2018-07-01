@@ -1,5 +1,6 @@
 package br.uefs.ecomp.ia.maze_robots;
 
+import java.util.List;
 import java.util.Random;
 
 public class Mutator {
@@ -11,6 +12,7 @@ public class Mutator {
 	private double delState;
 	private double changeState;
 	private double changeOutput;
+	private List<Robot> robots;
 
 	public Mutator setStateMin(int stateMin) {
 		this.stateMin = stateMin;
@@ -47,28 +49,32 @@ public class Mutator {
 		return this;
 	}
 
-	public boolean testChance(double value) {
+	public Mutator setRobots(List<Robot> robots) {
+		this.robots = robots;
+		return this;
+	}
+
+	private boolean testChance(double value) {
 		return value >= (random.nextInt(100) + 1);
 	}
 
-	public void mutate(Robot robot) {
-		robot.forEach((s, i) -> {
-			if (testChance(changeOutput))
-				robot.setOutput(s, i, random.nextInt(Robot.OUTPUT_SIZE));
-			if (testChance(changeState))
-				robot.setState(s, i, random.nextInt(robot.getStateSize()));
-		});
+	public void mutate() {
+		robots.forEach((r) -> {
+			r.forEach((s, i) -> {
+				if (testChance(changeOutput))
+					r.setOutput(s, i, random.nextInt(Robot.OUTPUT_SIZE));
+				if (testChance(changeState))
+					r.setState(s, i, random.nextInt(r.getStateSize()));
+			});
 
-		if (testChance(delState) && stateMin < robot.getStateSize())
-			robot.delState();
-		if (testChance(addState) && robot.getStateSize() < stateMax)
-			robot.addState();
-
-		robot.forEach((s, i) -> {
-			if (robot.getOutput(s, i) == -1)
-				robot.setOutput(s, i, random.nextInt(Robot.OUTPUT_SIZE));
-			if (robot.getState(s, i) == -1)
-				robot.setState(s, i, random.nextInt(robot.getStateSize()));
+			boolean del = testChance(delState) && stateMin < r.getStateSize();
+			boolean add = testChance(addState) && r.getStateSize() < stateMax;
+			if (del && add)
+				r.changeLastState(random);
+			else if (del)
+				r.delState(random);
+			else if (add)
+				r.addState(random);
 		});
 	}
 }

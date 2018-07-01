@@ -35,22 +35,26 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 		long startGenerator;
 		while (!checkStopCondition()) {
 			startGenerator = System.currentTimeMillis();
-
 			selectParents();
 			times.put("Select Parents", getTime(startGenerator));
 
+			startGenerator = System.currentTimeMillis();
 			recombine();
 			times.put("Recombine", getTime(startGenerator));
 
+			startGenerator = System.currentTimeMillis();
 			mutate();
 			times.put("Mutate", getTime(startGenerator));
 
+			startGenerator = System.currentTimeMillis();
 			calculateFitness(children);
 			times.put("Calculate Fitness", getTime(startGenerator));
 
+			startGenerator = System.currentTimeMillis();
 			selectSurvivors();
 			times.put("Select Survivors", getTime(startGenerator));
 
+			startGenerator = System.currentTimeMillis();
 			logPopulation();
 			generation++;
 			times.put("Total G.", getTime(startGenerator));
@@ -71,12 +75,6 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 
 	protected abstract void createStartPopulation();
 
-	protected abstract void calculateFitness(List<R> r);
-
-	protected abstract void logPopulation();
-
-	protected abstract boolean checkStopCondition();
-
 	protected abstract void selectParents();
 
 	protected abstract void recombine();
@@ -84,4 +82,10 @@ public abstract class EvolutionaryAlgorithm<R extends Representation<?>> {
 	protected abstract void mutate();
 
 	protected abstract void selectSurvivors();
+
+	protected abstract void calculateFitness(List<R> r);
+
+	protected abstract void logPopulation();
+
+	protected abstract boolean checkStopCondition();
 }

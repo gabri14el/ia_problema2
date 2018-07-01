@@ -388,6 +388,9 @@ public class Maze {
 		return mazes[index];
 	}
 
+	private static int ID_GENERATION = 0;
+
+	protected long id = ++ID_GENERATION;;
 	private final char maze[][];
 	private int sY;
 	private int sX;
@@ -426,6 +429,10 @@ public class Maze {
 			throw new RuntimeException("Labirinto sem inicio");
 		if (eY == -1)
 			throw new RuntimeException("Labirinto sem fim");
+	}
+
+	public long getId() {
+		return id;
 	}
 
 	public char[][] getMaze() {
@@ -478,5 +485,10 @@ public class Maze {
 
 	public int getEmptyPositions() {
 		return emptyPositions;
+	}
+
+	@Override
+	public String toString() {
+		return "Maze [id=" + id + "]";
 	}
 }

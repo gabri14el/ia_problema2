@@ -33,7 +33,7 @@ public class MazeView extends Application {
 	private Maze maze;
 
 	public MazeView() {
-		maze = Maze.get(16);
+		maze = Maze.get(6);
 		robot = loadRobot();
 	}
 
@@ -104,6 +104,8 @@ public class MazeView extends Application {
 		FitnessCalculator calculator = new FitnessCalculator()
 				.setScoreWallColision(App.FITNESS_WALL_COLISION)
 				.setScoreStep(App.FITNESS_STEP)
+				.setScoreCleanStep(App.FITNESS_CLEAN_STEP)
+				.setScoreRevisit(App.FITNESS_REVISIT)
 				.setScoreEnd(App.FITNESS_END)
 				.setMaze(maze)
 				.setRobot(robot);
@@ -133,9 +135,9 @@ public class MazeView extends Application {
 		HBox buttonsPane = new HBox(5, firstButton, nextButton, previousButton, lastButton);
 		buttonsPane.setAlignment(Pos.CENTER);
 
-		VBox sensorsPane = new VBox(15);
-		sensorsPane.setPadding(new Insets(5));
-		sensorsPane.setAlignment(Pos.CENTER);
+		VBox dataPane = new VBox(15);
+		dataPane.setPadding(new Insets(5));
+		dataPane.setAlignment(Pos.CENTER);
 
 		VBox itemPane;
 
@@ -145,7 +147,7 @@ public class MazeView extends Application {
 		grid.setVgap(1);
 		itemPane = new VBox(2, grid, new Label("Wall Sensor"));
 		itemPane.setAlignment(Pos.CENTER);
-		sensorsPane.getChildren().add(itemPane);
+		dataPane.getChildren().add(itemPane);
 
 		Pane leftWallSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> leftWallSensor.setStyle("-fx-background-color: " + ((robot.getLeftWallSensor(maze, n.ry, n.rx) == 1) ? "red" : "#11FF11") + ";"));
@@ -171,7 +173,7 @@ public class MazeView extends Application {
 		grid.setVgap(1);
 		itemPane = new VBox(2, grid, new Label("End Sensor"));
 		itemPane.setAlignment(Pos.CENTER);
-		sensorsPane.getChildren().add(itemPane);
+		dataPane.getChildren().add(itemPane);
 
 		Pane leftEndSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> leftEndSensor.setStyle("-fx-background-color: " + ((robot.getLeftEndSensor(maze, n.ry, n.rx) == 1) ? "#11FF11" : "red") + ";"));
@@ -197,7 +199,7 @@ public class MazeView extends Application {
 		grid.setVgap(1);
 		itemPane = new VBox(2, grid, new Label("Next Output"));
 		itemPane.setAlignment(Pos.CENTER);
-		sensorsPane.getChildren().add(itemPane);
+		dataPane.getChildren().add(itemPane);
 
 		Pane leftOutputSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> leftOutputSensor.setStyle("-fx-background-color: " + ((n.output == 1) ? "#117711" : "#771111") + ";"));
@@ -225,15 +227,21 @@ public class MazeView extends Application {
 		nextStateLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
 		Label maxStatesLabel = new Label("" + robot.getStateSize());
 		maxStatesLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+		Label fitnessLabel = new Label("0");
+		fitnessLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+		Label countStepsLabel = new Label("0");
+		countStepsLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
 		currentStepProperty().addListener((obs, o, n) -> {
 			currenttsateLabel.setText(nextStateLabel.getText());
 			nextStateLabel.setText("" + n.state);
+			fitnessLabel.setText(String.format("%d", ((int) n.fitness)));
+			countStepsLabel.setText(String.format("%d", ((int) n.count)));
 		});
-		itemPane.getChildren().addAll(currenttsateLabel, new Label("Current State"), nextStateLabel, new Label("Next State"), maxStatesLabel, new Label("Max States"));
+		itemPane.getChildren().addAll(currenttsateLabel, new Label("Current State"), nextStateLabel, new Label("Next State"), maxStatesLabel, new Label("Max States"), fitnessLabel,
+				new Label("Fitness"), countStepsLabel, new Label("Steps"));
 		itemPane.setAlignment(Pos.CENTER);
-		sensorsPane.getChildren().add(itemPane);
 
-		HBox pane1 = new HBox(10, contentPane, sensorsPane);
+		HBox pane1 = new HBox(10, contentPane, dataPane, itemPane);
 		VBox pane = new VBox(10, pane1, buttonsPane);
 		pane.setAlignment(Pos.TOP_CENTER);
 		pane.setOnKeyPressed((ke) -> {
@@ -254,7 +262,7 @@ public class MazeView extends Application {
 			}
 		});
 		stage.initStyle(StageStyle.UNDECORATED);
-		stage.setScene(new Scene(pane, (maze.getXLength() * 30) + 120, (maze.getYLength() * 30) + 40));
+		stage.setScene(new Scene(pane, (maze.getXLength() * 28) + 270, (maze.getYLength() * 9) + 400));
 		stage.setResizable(false);
 
 		setStep(steps.get(0));
@@ -291,13 +299,10 @@ public class MazeView extends Application {
 			int inputSize = Robot.INPUT_SIZE;
 			int stateSize = (numbers.size() / inputSize) / 2;
 
-			Integer[][][] value = new Integer[stateSize][inputSize][2];
-			for (int v = 0, s = 0; s < stateSize; s++) {
-				for (int i = 0; i < inputSize; i++) {
-					value[s][i][0] = new Integer(numbers.get(v++));
-					value[s][i][1] = new Integer(numbers.get(v++));
-				}
-			}
+			String[][] value = new String[stateSize][inputSize];
+			for (int v = 0, s = 0; s < stateSize; s++)
+				for (int i = 0; i < inputSize; i++)
+					value[s][i] = new String(numbers.get(v++) + ":" + numbers.get(v++));
 
 			return new Robot(value);
 		} catch (Exception e) {

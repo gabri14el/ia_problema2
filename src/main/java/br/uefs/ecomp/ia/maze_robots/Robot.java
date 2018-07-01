@@ -1,9 +1,11 @@
 package br.uefs.ecomp.ia.maze_robots;
 
+import java.util.Arrays;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import br.uefs.ecomp.ia.maze_robots.core.Representation;
 
-public class Robot extends Representation<Integer[][][]> {
+public class Robot extends Representation<String[][]> {
 	/*
 	 *STATE\INPUT
 	 *				00000000		00000001		00000010		.....		11111111
@@ -41,16 +43,10 @@ public class Robot extends Representation<Integer[][][]> {
 	public static final int OUTPUT_SIZE = 5;
 
 	public Robot(int stateSize) {
-		value = new Integer[stateSize][INPUT_SIZE][2];
-		for (Integer[][] state : value) {
-			for (Integer[] v : state) {
-				v[0] = -1;
-				v[1] = -1;
-			}
-		}
+		value = new String[stateSize][INPUT_SIZE];
 	}
 
-	public Robot(Integer[][][] value) {
+	public Robot(String[][] value) {
 		this.value = value;
 	}
 
@@ -59,19 +55,23 @@ public class Robot extends Representation<Integer[][][]> {
 	}
 
 	public Integer getOutput(int s, int i) {
-		return value[s][i][0];
+		return (value[s][i] != null) ? Integer.parseInt(value[s][i].substring(0, value[s][i].indexOf(":"))) : -1;
 	}
 
 	public void setOutput(int s, int i, int output) {
-		value[s][i][0] = output;
+		set(s, i, output, getState(s, i));
 	}
 
 	public Integer getState(int s, int i) {
-		return value[s][i][1];
+		return (value[s][i] != null) ? Integer.parseInt(value[s][i].substring(value[s][i].indexOf(":") + 1)) : -1;
 	}
 
 	public void setState(int s, int i, int state) {
-		value[s][i][1] = state;
+		set(s, i, getOutput(s, i), state);
+	}
+
+	public void set(int s, int i, int output, int state) {
+		value[s][i] = output + ":" + state;
 	}
 
 	public void forEach(BiConsumer<Integer, Integer> consumer) {
@@ -84,43 +84,45 @@ public class Robot extends Representation<Integer[][][]> {
 				consumer.accept(s, i);
 	}
 
-	public Integer[][][] copyValue(int newLength) {
-		Integer[][][] v = new Integer[newLength][value[0].length][2];
+	public String[][] copyValue(int newLength) {
+		String[][] v = new String[newLength][value[0].length];
 		if (newLength <= value.length) {
-			for (int s = 0; s < newLength; s++) {
-				for (int i = 0; i < value[s].length; i++) {
-					v[s][i][0] = new Integer(value[s][i][0]);
-					v[s][i][1] = new Integer(value[s][i][1]);
-				}
-			}
+			for (int s = 0; s < newLength; s++)
+				v[s] = value[s].clone();
 		} else {
-			for (int s = 0; s < value.length; s++) {
-				for (int i = 0; i < value[s].length; i++) {
-					v[s][i][0] = new Integer(value[s][i][0]);
-					v[s][i][1] = new Integer(value[s][i][1]);
-				}
-			}
-			for (int s = value.length; s < newLength; s++) {
-				for (int i = 0; i < v[s].length; i++) {
-					v[s][i][0] = -1;
-					v[s][i][1] = -1;
-				}
-			}
+			for (int s = 0; s < newLength; s++)
+				v[s] = value[s].clone();
+			for (int s = value.length; s < newLength; s++)
+				for (int i = 0; i < v[s].length; i++)
+					v[s][i] = "-1:-1";
 		}
 		return v;
 	}
 
-	public void delState() {
+	public void delState(Random random) {
 		int state = getStateSize() - 1;
 		value = copyValue(state);
 		for (int s = 0; s < value.length; s++)
 			for (int i = 0; i < value[s].length; i++)
-				if (value[s][i][1] == state)
-					value[s][i][1] = -1;
+				if (getState(s, i) == state)
+					setState(s, i, random.nextInt(state));
 	}
 
-	public void addState() {
-		value = copyValue(getStateSize() + 1);
+	public void addState(Random random) {
+		int stateSize = getStateSize() + 1;
+		value = Arrays.copyOf(value, stateSize);
+		String[] newState = new String[INPUT_SIZE];
+		for (int i = 0; i < INPUT_SIZE; i++)
+			newState[i] = random.nextInt(OUTPUT_SIZE) + ":" + random.nextInt(stateSize);
+		value[stateSize - 1] = newState;
+	}
+
+	public void changeLastState(Random random) {
+		int stateSize = getStateSize();
+		String[] newState = new String[INPUT_SIZE];
+		for (int i = 0; i < INPUT_SIZE; i++)
+			newState[i] = random.nextInt(OUTPUT_SIZE) + ":" + random.nextInt(stateSize);
+		value[stateSize - 1] = newState;
 	}
 
 	// ==============================================================================================
@@ -238,6 +240,7 @@ public class Robot extends Representation<Integer[][][]> {
 	protected Robot clone() {
 		Robot r = new Robot(getStateSize());
 		r.setValue(copyValue(value.length));
+		r.setParent(this);
 		return r;
 	}
 
@@ -256,7 +259,13 @@ public class Robot extends Representation<Integer[][][]> {
 			if (s < value.length - 1)
 				r += ',';
 		}
-		r += '}';
+		r += " parents={";
+		Robot p = (Robot) getParent();
+		if (p != null) {
+			r += "\n" + p.toString();
+			p = (Robot) p.getParent();
+		}
+		r += "}}";
 		return r;
 	}
 }

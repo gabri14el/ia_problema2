@@ -2,11 +2,14 @@ package br.uefs.ecomp.ia.maze_robots.core;
 
 public abstract class Representation<R> implements Cloneable {
 
-	public static int ID_GENERATION = 0;
+	private static int ID_GENERATION = 0;
 
 	protected long id = ++ID_GENERATION;
 	protected R value;
 	protected Double fitness;
+	protected Double normalizedFitness;
+	protected Double fitnessProportional;
+	protected Representation<R> parent;
 
 	public Representation() {
 		fitness = null;
@@ -24,12 +27,36 @@ public abstract class Representation<R> implements Cloneable {
 		this.fitness = fitness;
 	}
 
+	public Double getNormalizedFitness() {
+		return normalizedFitness;
+	}
+
+	public void setNormalizedFitness(Double normalizedFitness) {
+		this.normalizedFitness = normalizedFitness;
+	}
+
+	public Double getFitnessProportional() {
+		return fitnessProportional;
+	}
+
+	public void setFitnessProportional(Double fitnessProportional) {
+		this.fitnessProportional = fitnessProportional;
+	}
+
 	public R getValue() {
 		return value;
 	}
 
 	public void setValue(R value) {
 		this.value = value;
+	}
+
+	public Representation<R> getParent() {
+		return parent;
+	}
+
+	public void setParent(Representation<R> parent) {
+		this.parent = parent;
 	}
 
 	@Override
