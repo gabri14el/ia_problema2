@@ -82,7 +82,7 @@ public class FitnessCalculator {
 		step.rx = maze.getSX();
 		step.fitness = 0.0;
 		step.state = 0;
-		int maxSteps = (int) (maze.getEmptyPositions() * 2.5);
+		int maxSteps = (int) (maze.getEmptyPositions() * 1.2);
 
 		int[][] visited = new int[maze.getYLength()][maze.getXLength()];
 		for (int x = 0; x < maxSteps; x++) {

@@ -27,11 +27,10 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	// Limitações
 	public static final int STATE_MIN = 1;
-	public static final int STATE_MAX = 15;
-	public static final int STATE_INITIAL = 3;
+	public static final int STATE_MAX = 5;
 
 	// População
-	public static final int POPULATION_SIZE = 100; // Tamanho da população
+	public static final int POPULATION_SIZE = 200; // Tamanho da população
 
 	// Seleção de Pais
 	enum ParentSelection {
@@ -40,11 +39,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	public static final ParentSelection PS_MODE = ParentSelection.ELITISTA;
 	public static final int PS_PERCENTAGEM_TO_SELECT = (PS_MODE == ParentSelection.PROPORCIONAL || PS_MODE == ParentSelection.PROPORCIONAL) ? 100 : 50; // porcentagem
-	public static final int PS_MPercentage = 30;
-	public static final int PS_PPercentage = 20;
+	public static final int PS_MPercentage = 50;
+	public static final int PS_PPercentage = 30;
 
 	// Seleção de Sobreviventes
-	public static final boolean KILL_PARENTS = true;
+	public static final boolean KILL_PARENTS = false;
 
 	// Fitness
 	public static final double FITNESS_WALL_COLISION = -25.0; // Pontuação em caso de colisão com paredes
@@ -54,14 +53,15 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	public static final double FITNESS_END = 100.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
 
 	// Mutação
-	public static final double M_CHANGE_STATE_START = 50; // porcentagem
+	public static final double M_CHANGE_STATE_START = 30; // porcentagem
 	public static final double M_CHANGE_STATE_END = 5; // porcentagem
-	public static final double M_CHANGE_OUTPUT_START = 50; // porcentagem
+	public static final double M_CHANGE_OUTPUT_START = 30; // porcentagem
 	public static final double M_CHANGE_OUTPUT_END = 5; // porcentagem
-	public static final double M_ADD_STATE_START = 0; // porcentagem
+	public static final double M_ADD_STATE_START = 10; // porcentagem
 	public static final double M_ADD_STATE_END = 0; // porcentagem
 	public static final double M_DEL_STATE_START = 0; // porcentagem
-	public static final double M_DEL_STATE_END = 0; // porcentagem
+	public static final double M_DEL_STATE_END = 20; // porcentagem
+	public static final double GENERATION_TO_END = 80; // porcentagem
 
 	// Outros Parâmetros
 	public static final long START_TIME = System.currentTimeMillis();
@@ -69,10 +69,10 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 			135827968109L, 208248857186L, 432099974000L, 863278201449L, 461431272318L, 666015161980L, 586981007620L, 877453781828L, 574598151547L, 218042335334L, 435229484920L, 236406828574L,
 			363310412856L, 337560821399L, 918214207238L, 654497046710L, 923238918586L, 388953847145L, 823029413652L, 861453743932L
 	};
-	public static final long RANDOM_SEED = RANDOM_SEEDS[0]; // Semente para gerar números aleatórios usada atualmente
+	public static final long RANDOM_SEED = RANDOM_SEEDS[1]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private static List<Maze> mazes = Arrays.asList(Maze.get(6));
+	private static List<Maze> mazes = Arrays.asList(Maze.getGroup(4));
 
 	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
@@ -86,7 +86,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	 * @return 0.0 ~ 1.0
 	 */
 	private double getPercentageCompleted() {
-		return ((generation * (double) 100) / SC_MAX_GENERATION) / (double) 100;
+		return ((generation * (double) 100) / (SC_MAX_GENERATION * (GENERATION_TO_END / 100))) / 100;
 	}
 
 	private double getTemporalValue(double start, double end) {
@@ -98,7 +98,8 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		PopulationGenerator generator = new PopulationGenerator()
 				.setRandom(random)
 				.setSize(POPULATION_SIZE)
-				.setStateSize(STATE_INITIAL);
+				.setMinStates(STATE_MIN)
+				.setMaxStates(STATE_MAX);
 		population = generator.generate();
 	}
 
@@ -150,6 +151,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	protected void selectSurvivors() {
 		SurvivorSelector selector = new SurvivorSelector()
 				.setPopulationSize(POPULATION_SIZE)
+				.setRandom(random)
 				.setParents(parents)
 				.setChildren(children)
 				.setPSMode(PS_MODE)

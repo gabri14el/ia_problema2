@@ -33,7 +33,7 @@ public class MazeView extends Application {
 	private Maze maze;
 
 	public MazeView() {
-		maze = Maze.get(6);
+		maze = Maze.getGroup(4)[3];
 		robot = loadRobot();
 	}
 
@@ -235,7 +235,7 @@ public class MazeView extends Application {
 			currenttsateLabel.setText(nextStateLabel.getText());
 			nextStateLabel.setText("" + n.state);
 			fitnessLabel.setText(String.format("%d", ((int) n.fitness)));
-			countStepsLabel.setText(String.format("%d", ((int) n.count)));
+			countStepsLabel.setText(String.format("%d", (n.count)));
 		});
 		itemPane.getChildren().addAll(currenttsateLabel, new Label("Current State"), nextStateLabel, new Label("Next State"), maxStatesLabel, new Label("Max States"), fitnessLabel,
 				new Label("Fitness"), countStepsLabel, new Label("Steps"));
@@ -243,23 +243,26 @@ public class MazeView extends Application {
 
 		HBox pane1 = new HBox(10, contentPane, dataPane, itemPane);
 		VBox pane = new VBox(10, pane1, buttonsPane);
+		pane.setPadding(new Insets(10));
 		pane.setAlignment(Pos.TOP_CENTER);
 		pane.setOnKeyPressed((ke) -> {
-			if (KeyCode.UP == ke.getCode()) {
-				setStep(steps.get(0));
-				ke.consume();
-			} else if (KeyCode.DOWN == ke.getCode()) {
-				setStep(steps.get(steps.size() - 1));
-				ke.consume();
-			} else if (KeyCode.LEFT == ke.getCode()) {
-				setStep(steps.get(steps.indexOf(getStep()) - 1));
-				ke.consume();
-			} else if (KeyCode.RIGHT == ke.getCode()) {
-				setStep(steps.get(steps.indexOf(getStep()) + 1));
-				ke.consume();
-			} else if (KeyCode.ESCAPE == ke.getCode()) {
-				System.exit(0);
-			}
+			try {
+				if (KeyCode.UP == ke.getCode()) {
+					setStep(steps.get(0));
+					ke.consume();
+				} else if (KeyCode.DOWN == ke.getCode()) {
+					setStep(steps.get(steps.size() - 1));
+					ke.consume();
+				} else if (KeyCode.LEFT == ke.getCode()) {
+					setStep(steps.get(steps.indexOf(getStep()) - 1));
+					ke.consume();
+				} else if (KeyCode.RIGHT == ke.getCode()) {
+					setStep(steps.get(steps.indexOf(getStep()) + 1));
+					ke.consume();
+				} else if (KeyCode.ESCAPE == ke.getCode()) {
+					System.exit(0);
+				}
+			} catch (IndexOutOfBoundsException e) {}
 		});
 		stage.initStyle(StageStyle.UNDECORATED);
 		stage.setScene(new Scene(pane, (maze.getXLength() * 28) + 270, (maze.getYLength() * 9) + 400));
