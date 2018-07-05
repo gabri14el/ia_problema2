@@ -22,6 +22,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -33,7 +35,7 @@ public class MazeView extends Application {
 	private Maze maze;
 
 	public MazeView() {
-		maze = Maze.getGroup(4)[3];
+		maze = Maze.getGroup(4)[1];
 		robot = loadRobot();
 	}
 
@@ -45,10 +47,14 @@ public class MazeView extends Application {
 		this.maze = maze;
 	}
 
-	private Node createRobot(String color) {
-		Circle c = new Circle(15);
+	private Node createRobot(String color, String backgroundColor) {
+		Circle c = new Circle(10);
 		c.setStyle("-fx-fill: " + color + ";");
-		return c;
+		VBox pane = new VBox(c);
+		pane.setAlignment(Pos.CENTER);
+		pane.setStyle("-fx-background-color: " + backgroundColor + ";");
+
+		return pane;
 	}
 
 	private Node createMazePane(String color) {
@@ -63,24 +69,64 @@ public class MazeView extends Application {
 		return pane;
 	}
 
-	private Node createMazeView(FitnessCalculator.Step step) {
+	private Node createMazeView(List<FitnessCalculator.Step> steps) {
 		GridPane m = new GridPane();
+		FitnessCalculator.Step lastStep = steps.get(steps.size() - 1);
+		TilePane stepPane;
+		StackPane pane;
+		FitnessCalculator.Step step;
+		Label numberLabel;
+
 		for (int y = 0; y < maze.getYLength(); y++) {
 			for (int x = 0; x < maze.getXLength(); x++) {
+				pane = createStackPane();
+				stepPane = new TilePane(2.5, 2.5);
+				stepPane.setAlignment(Pos.CENTER);
 
-				if (y == step.ry && x == step.rx)
-					m.add(createRobot("red"), x, y);
-				else if (maze.isWall(y, x))
-					m.add(createMazePane("black"), x, y);
+				if (y == lastStep.ry && x == lastStep.rx) {
+					if (maze.isStart(y, x))
+						pane.getChildren().add(createRobot("red", "blue"));
+					else if (maze.isEnd(y, x))
+						pane.getChildren().add(createRobot("red", "#11FF11"));
+					else
+						pane.getChildren().add(createRobot("red", "white"));
+				} else if (maze.isWall(y, x))
+					pane.getChildren().add(createMazePane("black"));
 				else if (maze.isStart(y, x))
-					m.add(createMazePane("blue"), x, y);
+					pane.getChildren().add(createMazePane("blue"));
 				else if (maze.isEnd(y, x))
-					m.add(createMazePane("#11FF11"), x, y);
+					pane.getChildren().add(createMazePane("#11FF11"));
 				else
-					m.add(createMazePane("white"), x, y);
+					pane.getChildren().add(createMazePane("white"));
+
+				for (int s = 0; s < steps.size() - 1; s++) {
+					step = steps.get(s);
+					if (step.ry == y && step.rx == x && !(y == lastStep.ry && x == lastStep.rx)) {
+						stepPane.setStyle("-fx-border-color: red;");
+						numberLabel = new Label("" + s);
+						numberLabel.setStyle("-fx-font-size: 8px; -fx-text-fill: red; -fx-font-weight: bold;");
+						stepPane.getChildren().add(numberLabel);
+					}
+				}
+				pane.getChildren().add(stepPane);
+
+				m.add(pane, x, y);
 			}
 		}
+
 		return m;
+	}
+
+	private StackPane createStackPane() {
+		StackPane pane = new StackPane();
+		pane.setAlignment(Pos.CENTER);
+		pane.setPrefWidth(30);
+		pane.setPrefHeight(30);
+		pane.setMinWidth(30);
+		pane.setMinHeight(30);
+		pane.setMaxWidth(30);
+		pane.setMaxHeight(30);
+		return pane;
 	}
 
 	private Pane createStatusPane() {
@@ -99,7 +145,6 @@ public class MazeView extends Application {
 		stage.setOnCloseRequest((we) -> System.exit(0));
 
 		BorderPane contentPane = new BorderPane();
-		currentStepProperty().addListener((obs, o, n) -> contentPane.setCenter(createMazeView(n)));
 
 		FitnessCalculator calculator = new FitnessCalculator()
 				.setScoreWallColision(App.FITNESS_WALL_COLISION)
@@ -111,6 +156,8 @@ public class MazeView extends Application {
 				.setRobot(robot);
 		robot.setFitness(calculator.calculate());
 		List<FitnessCalculator.Step> steps = calculator.getLastMazeSteps();
+
+		currentStepProperty().addListener((obs, o, n) -> contentPane.setCenter(createMazeView(steps.subList(0, steps.indexOf(n) + 1))));
 
 		Button firstButton = new Button("First");
 		firstButton.setOnAction((ae) -> {
@@ -157,8 +204,6 @@ public class MazeView extends Application {
 		currentStepProperty().addListener((obs, o, n) -> upWallSensor.setStyle("-fx-background-color: " + ((robot.getUpWallSensor(maze, n.ry, n.rx) == 1) ? "red" : "#11FF11") + ";"));
 		grid.add(upWallSensor, 1, 0);
 
-		grid.add(createRobot("black"), 1, 1);
-
 		Pane rightWallSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> rightWallSensor.setStyle("-fx-background-color: " + ((robot.getRightWallSensor(maze, n.ry, n.rx) == 1) ? "red" : "#11FF11") + ";"));
 		grid.add(rightWallSensor, 2, 1);
@@ -183,8 +228,6 @@ public class MazeView extends Application {
 		currentStepProperty().addListener((obs, o, n) -> upEndSensor.setStyle("-fx-background-color: " + ((robot.getUpEndSensor(maze, n.ry, n.rx) == 1) ? "#11FF11" : "red") + ";"));
 		grid.add(upEndSensor, 1, 0);
 
-		grid.add(createRobot("black"), 1, 1);
-
 		Pane rightEndSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> rightEndSensor.setStyle("-fx-background-color: " + ((robot.getRightEndSensor(maze, n.ry, n.rx) == 1) ? "#11FF11" : "red") + ";"));
 		grid.add(rightEndSensor, 2, 1);
@@ -208,8 +251,6 @@ public class MazeView extends Application {
 		Pane upOutputSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> upOutputSensor.setStyle("-fx-background-color: " + ((n.output == 2) ? "#117711" : "#771111") + ";"));
 		grid.add(upOutputSensor, 1, 0);
-
-		grid.add(createRobot("black"), 1, 1);
 
 		Pane rightOutputSensor = createStatusPane();
 		currentStepProperty().addListener((obs, o, n) -> rightOutputSensor.setStyle("-fx-background-color: " + ((n.output == 3) ? "#117711" : "#771111") + ";"));
