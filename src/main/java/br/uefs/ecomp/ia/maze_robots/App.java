@@ -23,7 +23,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	}
 
 	// Codições de parada
-	public static final int SC_MAX_GENERATION = 1000; // Número máximo de gerações para parar o algoritmo
+	public static final int SC_MAX_GENERATION = 2000; // Número máximo de gerações para parar o algoritmo
 
 	// Limitações
 	public static final int STATE_MIN = 1;
@@ -37,9 +37,9 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		PROPORCIONAL, PROPORCIONAL_RANDOM, TORNEIO, BI_CLASSISTA, ELITISTA
 	};
 
-	public static final ParentSelection PS_MODE = ParentSelection.ELITISTA;
+	public static final ParentSelection PS_MODE = ParentSelection.PROPORCIONAL;
 	public static final int PS_PERCENTAGEM_TO_SELECT = (PS_MODE == ParentSelection.PROPORCIONAL || PS_MODE == ParentSelection.PROPORCIONAL) ? 100 : 50; // porcentagem
-	public static final int PS_MPercentage = 50;
+	public static final int PS_MPercentage = 70;
 	public static final int PS_PPercentage = 30;
 
 	// Seleção de Sobreviventes
@@ -55,13 +55,13 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	// Mutação
 	public static final double M_CHANGE_STATE_START = 30; // porcentagem
 	public static final double M_CHANGE_STATE_END = 5; // porcentagem
-	public static final double M_CHANGE_OUTPUT_START = 30; // porcentagem
-	public static final double M_CHANGE_OUTPUT_END = 5; // porcentagem
-	public static final double M_ADD_STATE_START = 10; // porcentagem
+	public static final double M_CHANGE_OUTPUT_START = 5; // porcentagem
+	public static final double M_CHANGE_OUTPUT_END = 30; // porcentagem
+	public static final double M_ADD_STATE_START = 15; // porcentagem
 	public static final double M_ADD_STATE_END = 0; // porcentagem
 	public static final double M_DEL_STATE_START = 0; // porcentagem
-	public static final double M_DEL_STATE_END = 20; // porcentagem
-	public static final double GENERATION_TO_END = 80; // porcentagem
+	public static final double M_DEL_STATE_END = 30; // porcentagem
+	public static final double GENERATION_TO_END = 40; // porcentagem
 
 	// Outros Parâmetros
 	public static final long START_TIME = System.currentTimeMillis();
@@ -72,7 +72,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	public static final long RANDOM_SEED = RANDOM_SEEDS[1]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private static List<Maze> mazes = Arrays.asList(Maze.getGroup(4));
+	private static List<Maze> mazes = Arrays.asList(Maze.getGroup(1));
 
 	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;

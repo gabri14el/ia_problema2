@@ -48,7 +48,7 @@ public class ParentSelector {
 	public List<Robot> select() {
 		List<Robot> robots = new LinkedList<>();
 
-		int sizeToSelect = (int) (population.size() * ((double) percentagemToSelect / 100.0));
+		int sizeToSelect = (int) (population.size() * (percentagemToSelect / 100.0));
 
 		switch (mode) {
 			case PROPORCIONAL:
@@ -76,8 +76,8 @@ public class ParentSelector {
 			}
 
 			case BI_CLASSISTA: {
-				int m_size = sizeToSelect * (mPercentage / 100);
-				int p_size = sizeToSelect * (pPercentage / 100);
+				int m_size = (int) (sizeToSelect * (mPercentage / 100.0));
+				int p_size = (int) (sizeToSelect * (pPercentage / 100.0));
 				robots.addAll(population.subList(0, m_size));
 				robots.addAll(population.subList(p_size, population.size() - 1));
 				break;
