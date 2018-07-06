@@ -35,7 +35,7 @@ public class MazeView extends Application {
 	private Maze maze;
 
 	public MazeView() {
-		maze = Maze.getGroup(4)[1];
+		maze = Maze.getGroup(0)[0];
 		robot = loadRobot();
 	}
 

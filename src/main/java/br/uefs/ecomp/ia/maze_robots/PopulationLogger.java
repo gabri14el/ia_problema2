@@ -69,7 +69,7 @@ public class PopulationLogger {
 			out.format("S avg:      %6.0f\n", avgStates);
 			out.format("S max:      %6d\n", maxStates);
 			out.format("S min:      %6d\n", minStates);
-			if (generation >= App.SC_MAX_GENERATION) {
+			if (generation >= App.MAX_GENERATION) {
 				out.println(worse);
 				out.println();
 				out.println("BEST " + best);

@@ -23,58 +23,57 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	}
 
 	// Codições de parada
-	public static final int SC_MAX_GENERATION = 2000; // Número máximo de gerações para parar o algoritmo
+	public static int MAX_GENERATION = 2000; // Número máximo de gerações para parar o algoritmo
 
 	// Limitações
-	public static final int STATE_MIN = 1;
-	public static final int STATE_MAX = 5;
+	public static int STATE_MIN = 1;
+	public static int STATE_MAX = 5;
 
 	// População
-	public static final int POPULATION_SIZE = 200; // Tamanho da população
+	public static int POPULATION_SIZE = 200; // Tamanho da população
 
 	// Seleção de Pais
 	enum ParentSelection {
-		PROPORCIONAL, PROPORCIONAL_RANDOM, TORNEIO, BI_CLASSISTA, ELITISTA
+		PROPORCIONAL, TORNEIO, BI_CLASSISTA, ELITISTA, PROPORCIONAL_RANDOM
 	};
 
-	public static final ParentSelection PS_MODE = ParentSelection.PROPORCIONAL;
-	public static final int PS_PERCENTAGEM_TO_SELECT = (PS_MODE == ParentSelection.PROPORCIONAL || PS_MODE == ParentSelection.PROPORCIONAL) ? 100 : 50; // porcentagem
-	public static final int PS_MPercentage = 70;
-	public static final int PS_PPercentage = 30;
+	public static ParentSelection PS_MODE = ParentSelection.PROPORCIONAL;
+	public static int PS_PERCENTAGEM_TO_SELECT = (PS_MODE == ParentSelection.PROPORCIONAL || PS_MODE == ParentSelection.PROPORCIONAL) ? 100 : 50; // porcentagem
+	public static int PS_MPercentage = 70;
+	public static int PS_PPercentage = 30;
 
 	// Seleção de Sobreviventes
-	public static final boolean KILL_PARENTS = false;
+	public static boolean PS_KILL_PARENTS = false;
 
 	// Fitness
-	public static final double FITNESS_WALL_COLISION = -25.0; // Pontuação em caso de colisão com paredes
-	public static final double FITNESS_STEP = -5.0; // Pontuação para cada passo dado
-	public static final double FITNESS_CLEAN_STEP = 10.0; // Pontuação para cada passo dado em um local disponível
-	public static final double FITNESS_REVISIT = -100.0; // Pontuação para cada passo dado em um local disponível
-	public static final double FITNESS_END = 100.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
+	public static double FITNESS_WALL_COLISION = -25.0; // Pontuação em caso de colisão com paredes
+	public static double FITNESS_STEP = -5.0; // Pontuação para cada passo dado
+	public static double FITNESS_CLEAN_STEP = 10.0; // Pontuação para cada passo dado em um local disponível
+	public static double FITNESS_REVISIT = -100.0; // Pontuação para cada passo dado em um local disponível
+	public static double FITNESS_END = 100.0; // Pontuação por chegar ao fim (e manter-se lá, caso não interrompa a execução)
 
 	// Mutação
-	public static final double M_CHANGE_STATE_START = 30; // porcentagem
-	public static final double M_CHANGE_STATE_END = 5; // porcentagem
-	public static final double M_CHANGE_OUTPUT_START = 5; // porcentagem
-	public static final double M_CHANGE_OUTPUT_END = 30; // porcentagem
-	public static final double M_ADD_STATE_START = 15; // porcentagem
-	public static final double M_ADD_STATE_END = 0; // porcentagem
-	public static final double M_DEL_STATE_START = 0; // porcentagem
-	public static final double M_DEL_STATE_END = 30; // porcentagem
-	public static final double GENERATION_TO_END = 40; // porcentagem
+	public static double M_CHANGE_STATE_START = 50; // porcentagem
+	public static double M_CHANGE_STATE_END = 5; // porcentagem
+	public static double M_CHANGE_OUTPUT_START = 50; // porcentagem
+	public static double M_CHANGE_OUTPUT_END = 5; // porcentagem
+	public static double M_ADD_STATE_START = 15; // porcentagem
+	public static double M_ADD_STATE_END = 0; // porcentagem
+	public static double M_DEL_STATE_START = 0; // porcentagem
+	public static double M_DEL_STATE_END = 30; // porcentagem
+	public static double GENERATION_TO_END = 70; // porcentagem
 
 	// Outros Parâmetros
-	public static final long START_TIME = System.currentTimeMillis();
-	public static final long[] RANDOM_SEEDS = new long[] { // Conjunto de sementes para gerar números aleatórios
-			135827968109L, 208248857186L, 432099974000L, 863278201449L, 461431272318L, 666015161980L, 586981007620L, 877453781828L, 574598151547L, 218042335334L, 435229484920L, 236406828574L,
-			363310412856L, 337560821399L, 918214207238L, 654497046710L, 923238918586L, 388953847145L, 823029413652L, 861453743932L
-	};
-	public static final long RANDOM_SEED = RANDOM_SEEDS[1]; // Semente para gerar números aleatórios usada atualmente
+	public static long START_TIME = System.currentTimeMillis();
+
+	// Conjunto de sementes para gerar números aleatórios
+	public static long[] RANDOM_SEEDS = new long[] { 135827968109L, 208248857186L, 432099974000L, 863278201449L, 461431272318L, 666015161980L, 586981007620L, 877453781828L };
+	public static long RANDOM_SEED = RANDOM_SEEDS[1]; // Semente para gerar números aleatórios usada atualmente
 	private Random random = new Random(RANDOM_SEED);
 
-	private static List<Maze> mazes = Arrays.asList(Maze.getGroup(1));
+	private static List<Maze> MAZES = Arrays.asList(Maze.getGroup(4));
 
-	public static final Comparator<? super Robot> comparator = (r1, r2) -> {
+	public static Comparator<? super Robot> comparator = (r1, r2) -> {
 		Double fitness1 = (r1.getFitness() != null) ? r1.getFitness() : Double.MIN_VALUE;
 		Double fitness2 = (r2.getFitness() != null) ? r2.getFitness() : Double.MIN_VALUE;
 		return fitness2.compareTo(fitness1);
@@ -86,7 +85,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	 * @return 0.0 ~ 1.0
 	 */
 	private double getPercentageCompleted() {
-		return ((generation * (double) 100) / (SC_MAX_GENERATION * (GENERATION_TO_END / 100))) / 100;
+		return ((generation * (double) 100) / (MAX_GENERATION * (GENERATION_TO_END / 100))) / 100;
 	}
 
 	private double getTemporalValue(double start, double end) {
@@ -155,7 +154,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 				.setParents(parents)
 				.setChildren(children)
 				.setPSMode(PS_MODE)
-				.setKillParents(KILL_PARENTS);
+				.setKillParents(PS_KILL_PARENTS);
 		population = selector.select();
 		population.sort(comparator);
 	}
@@ -171,7 +170,7 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		robots.forEach((r) -> {
 			calculator.setRobot(r);
 			double fitness = 0.0;
-			for (Maze m : mazes) {
+			for (Maze m : MAZES) {
 				fitness += calculator
 						.setMaze(m)
 						.calculate();
@@ -191,10 +190,134 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 
 	@Override
 	protected boolean checkStopCondition() {
-		return SC_MAX_GENERATION < generation;
+		return MAX_GENERATION < generation;
 	}
 
 	public static void main(String[] args) {
+		// Execução 1
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[1];
+		MAZES = Arrays.asList(Maze.getGroup(4));
+		runAllPS();
+
+		// Execução 2
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[2];
+		MAZES = Arrays.asList(Maze.getGroup(3));
+		PS_PERCENTAGEM_TO_SELECT = 50;
+		PS_MPercentage = 70;
+		PS_PPercentage = 30;
+		runPS(ParentSelection.BI_CLASSISTA);
+		PS_MPercentage = 30;
+		PS_PPercentage = 70;
+		runPS(ParentSelection.BI_CLASSISTA);
+		PS_MPercentage = 30;
+		PS_PPercentage = 20;
+		runPS(ParentSelection.BI_CLASSISTA);
+		PS_MPercentage = 20;
+		PS_PPercentage = 10;
+		runPS(ParentSelection.BI_CLASSISTA);
+		PS_PERCENTAGEM_TO_SELECT = 100;
+		PS_MPercentage = 70;
+		PS_PPercentage = 30;
+		runPS(ParentSelection.BI_CLASSISTA);
+		PS_MPercentage = 30;
+		PS_PPercentage = 70;
+		runPS(ParentSelection.BI_CLASSISTA);
+
+		// Execução 3
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[3];
+		PS_PERCENTAGEM_TO_SELECT = 10;
+		runPS(ParentSelection.ELITISTA);
+		PS_PERCENTAGEM_TO_SELECT = 70;
+		runPS(ParentSelection.ELITISTA);
+
+		// Execução 4
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[4];
+		MAZES = Arrays.asList(Maze.getGroup(2));
+		runAllPS();
+		PS_KILL_PARENTS = true;
+		runAllPS();
+
+		// Execução 5
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[5];
+		MAZES = Arrays.asList(Maze.getGroup(0));
+		POPULATION_SIZE = 100;
+		runAllPS();
+		POPULATION_SIZE = 50;
+		runAllPS();
+
+		// Execução 6
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[6];
+		MAZES = Arrays.asList(Maze.getGroup(1));
+		M_CHANGE_STATE_START = 10;
+		M_CHANGE_STATE_END = 1;
+		M_CHANGE_OUTPUT_START = 10;
+		M_CHANGE_OUTPUT_END = 1;
+		runAllPS();
+		M_CHANGE_STATE_START = 100;
+		M_CHANGE_STATE_END = 30;
+		M_CHANGE_OUTPUT_START = 100;
+		M_CHANGE_OUTPUT_END = 30;
+		runAllPS();
+
+		// Execução 7
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[7];
+		MAZES = Arrays.asList(Maze.getGroup(1));
+		M_ADD_STATE_START = 5;
+		M_ADD_STATE_END = 0;
+		M_DEL_STATE_START = 0;
+		M_DEL_STATE_END = 5;
+		runAllPS();
+		M_ADD_STATE_START = 80;
+		M_ADD_STATE_END = 20;
+		M_DEL_STATE_START = 20;
+		M_DEL_STATE_END = 80;
+		runAllPS();
+	}
+
+	private static void initParams() {
+		MAX_GENERATION = 2000;
+		POPULATION_SIZE = 200;
+		RANDOM_SEED = RANDOM_SEEDS[0];
+		MAZES = Arrays.asList(Maze.getGroup(0));
+
+		PS_PERCENTAGEM_TO_SELECT = 50;
+		PS_MPercentage = 70;
+		PS_PPercentage = 30;
+		PS_KILL_PARENTS = false;
+
+		M_CHANGE_STATE_START = 50;
+		M_CHANGE_STATE_END = 5;
+		M_CHANGE_OUTPUT_START = 50;
+		M_CHANGE_OUTPUT_END = 5;
+		M_ADD_STATE_START = 15;
+		M_ADD_STATE_END = 0;
+		M_DEL_STATE_START = 0;
+		M_DEL_STATE_END = 30;
+	}
+
+	private static void runAllPS() {
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.TORNEIO);
+		runPS(ParentSelection.BI_CLASSISTA);
+		runPS(ParentSelection.ELITISTA);
+	}
+
+	private static void runPS(ParentSelection parentSelection) {
+		PS_MODE = parentSelection;
+		START_TIME = System.currentTimeMillis();
+		App.instance = new App();
+		App.logParameters();
+		App.getInstance().run();
+	}
+
+	private static void logParameters() {
 		File dir = new File("output" + File.separator + "run_" + START_TIME);
 		dir.mkdirs();
 		File f = new File(dir, String.format("definitions.txt"));
@@ -213,7 +336,5 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 			e.printStackTrace();
 			System.exit(0);
 		}
-
-		getInstance().run();
 	}
 }
