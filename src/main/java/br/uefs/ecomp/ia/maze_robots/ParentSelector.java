@@ -88,7 +88,7 @@ public class ParentSelector {
 		if (robots.size() < sizeToSelect) {
 			List<Robot> randomRobots = new LinkedList<>(population);
 			randomRobots.removeIf((r) -> robots.contains(r));
-			randomRobots.sort((r1, r2) -> random.nextInt() - random.nextInt());
+			Collections.shuffle(randomRobots, random);
 			robots.addAll(randomRobots.subList(0, sizeToSelect - robots.size()));
 		}
 
