@@ -44,7 +44,7 @@ public class ExtractLogData {
 				}
 			}
 
-			try (PrintStream out = new PrintStream(new FileOutputStream(new File(file.getParentFile(), "values.txt"), true), true, "UTF-8")) {
+			try (PrintStream out = new PrintStream(new FileOutputStream(new File(file.getParentFile(), "values.txt"), false), true, "UTF-8")) {
 				Integer[] v;
 				for (int x = 0; x < values.size(); x++) {
 					v = values.get(x);
