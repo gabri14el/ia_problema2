@@ -48,7 +48,7 @@ public class ExtractLogData {
 				Integer[] v;
 				for (int x = 0; x < values.size(); x++) {
 					v = values.get(x);
-					out.format("%d %d %d\n", v[0], v[1], v[2]);
+					out.format("%d\t%d\t%d\n", v[0], v[1], v[2]);
 				}
 			}
 		}
