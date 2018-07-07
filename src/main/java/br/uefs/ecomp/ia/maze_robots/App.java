@@ -240,6 +240,11 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 		runAllPS();
 		PS_KILL_PARENTS = true;
 		runAllPS();
+		M_CHANGE_STATE_START = 10;
+		M_CHANGE_STATE_END = 5;
+		M_CHANGE_OUTPUT_START = 5;
+		M_CHANGE_OUTPUT_END = 1;
+		runAllPS();
 
 		// Execução 5
 		initParams();
