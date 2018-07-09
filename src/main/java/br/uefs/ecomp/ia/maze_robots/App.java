@@ -194,96 +194,98 @@ public class App extends EvolutionaryAlgorithm<Robot> {
 	}
 
 	public static void main(String[] args) {
+		initParams();
+		RANDOM_SEED = RANDOM_SEEDS[3];
+		MAZES = Arrays.asList(Maze.getGroup(2));
+		PS_KILL_PARENTS = true;
+		M_CHANGE_STATE_START = 5;
+		M_CHANGE_STATE_END = 0;
+		M_CHANGE_OUTPUT_START = 5;
+		M_CHANGE_OUTPUT_END = 0;
+		M_ADD_STATE_START = 5;
+		M_ADD_STATE_END = 0;
+		M_DEL_STATE_START = 0;
+		M_DEL_STATE_END = 5;
+		runPS(ParentSelection.ELITISTA);
 		// Execução 1
 		initParams();
+		MAZES = Arrays.asList(Maze.getGroup(0));
+		RANDOM_SEED = RANDOM_SEEDS[0];
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
 		RANDOM_SEED = RANDOM_SEEDS[1];
-		MAZES = Arrays.asList(Maze.getGroup(4));
-		runAllPS();
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
 
 		// Execução 2
 		initParams();
 		RANDOM_SEED = RANDOM_SEEDS[2];
-		MAZES = Arrays.asList(Maze.getGroup(3));
-		PS_PERCENTAGEM_TO_SELECT = 50;
-		PS_MPercentage = 70;
-		PS_PPercentage = 30;
-		runPS(ParentSelection.BI_CLASSISTA);
-		PS_MPercentage = 30;
-		PS_PPercentage = 70;
-		runPS(ParentSelection.BI_CLASSISTA);
-		PS_MPercentage = 30;
-		PS_PPercentage = 20;
-		runPS(ParentSelection.BI_CLASSISTA);
-		PS_MPercentage = 20;
-		PS_PPercentage = 10;
-		runPS(ParentSelection.BI_CLASSISTA);
-		PS_PERCENTAGEM_TO_SELECT = 100;
-		PS_MPercentage = 70;
-		PS_PPercentage = 30;
-		runPS(ParentSelection.BI_CLASSISTA);
-		PS_MPercentage = 30;
-		PS_PPercentage = 70;
-		runPS(ParentSelection.BI_CLASSISTA);
+		MAZES = Arrays.asList(Maze.getGroup(1));
+		POPULATION_SIZE = 100;
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
+		POPULATION_SIZE = 50;
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
+		POPULATION_SIZE = 10;
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
 
 		// Execução 3
 		initParams();
 		RANDOM_SEED = RANDOM_SEEDS[3];
-		PS_PERCENTAGEM_TO_SELECT = 10;
+		MAZES = Arrays.asList(Maze.getGroup(2));
+		runPS(ParentSelection.PROPORCIONAL);
 		runPS(ParentSelection.ELITISTA);
-		PS_PERCENTAGEM_TO_SELECT = 70;
+		PS_KILL_PARENTS = true;
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
+		M_CHANGE_STATE_START = 10;
+		M_CHANGE_STATE_END = 5;
+		M_CHANGE_OUTPUT_START = 10;
+		M_CHANGE_OUTPUT_END = 5;
+		M_ADD_STATE_START = 5;
+		M_ADD_STATE_END = 0;
+		M_DEL_STATE_START = 0;
+		M_DEL_STATE_END = 5;
+		runPS(ParentSelection.PROPORCIONAL);
 		runPS(ParentSelection.ELITISTA);
 
 		// Execução 4
 		initParams();
 		RANDOM_SEED = RANDOM_SEEDS[4];
-		MAZES = Arrays.asList(Maze.getGroup(2));
-		runAllPS();
-		PS_KILL_PARENTS = true;
-		runAllPS();
-		M_CHANGE_STATE_START = 10;
-		M_CHANGE_STATE_END = 5;
-		M_CHANGE_OUTPUT_START = 5;
-		M_CHANGE_OUTPUT_END = 1;
-		runAllPS();
+		MAZES = Arrays.asList(Maze.getGroup(3));
+		PS_PERCENTAGEM_TO_SELECT = 10;
+		runPS(ParentSelection.ELITISTA);
+		PS_PERCENTAGEM_TO_SELECT = 70;
+		runPS(ParentSelection.ELITISTA);
+		PS_PERCENTAGEM_TO_SELECT = 80;
+		runPS(ParentSelection.ELITISTA);
 
 		// Execução 5
 		initParams();
 		RANDOM_SEED = RANDOM_SEEDS[5];
-		MAZES = Arrays.asList(Maze.getGroup(0));
-		POPULATION_SIZE = 100;
-		runAllPS();
-		POPULATION_SIZE = 50;
-		runAllPS();
-
-		// Execução 6
-		initParams();
-		RANDOM_SEED = RANDOM_SEEDS[6];
-		MAZES = Arrays.asList(Maze.getGroup(1));
+		MAZES = Arrays.asList(Maze.getGroup(4));
 		M_CHANGE_STATE_START = 10;
 		M_CHANGE_STATE_END = 1;
 		M_CHANGE_OUTPUT_START = 10;
 		M_CHANGE_OUTPUT_END = 1;
-		runAllPS();
-		M_CHANGE_STATE_START = 100;
-		M_CHANGE_STATE_END = 30;
-		M_CHANGE_OUTPUT_START = 100;
-		M_CHANGE_OUTPUT_END = 30;
-		runAllPS();
-
-		// Execução 7
-		initParams();
-		RANDOM_SEED = RANDOM_SEEDS[7];
-		MAZES = Arrays.asList(Maze.getGroup(1));
 		M_ADD_STATE_START = 5;
 		M_ADD_STATE_END = 0;
 		M_DEL_STATE_START = 0;
 		M_DEL_STATE_END = 5;
-		runAllPS();
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
+		M_CHANGE_STATE_START = 100;
+		M_CHANGE_STATE_END = 30;
+		M_CHANGE_OUTPUT_START = 100;
+		M_CHANGE_OUTPUT_END = 30;
 		M_ADD_STATE_START = 80;
 		M_ADD_STATE_END = 20;
 		M_DEL_STATE_START = 20;
 		M_DEL_STATE_END = 80;
-		runAllPS();
+		runPS(ParentSelection.PROPORCIONAL);
+		runPS(ParentSelection.ELITISTA);
 	}
 
 	private static void initParams() {
